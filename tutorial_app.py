@@ -5,7 +5,7 @@ import time
 # Ensure the library is in the path for this tutorial
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from switchboard_ai import Agent, Router, ConversationManager
+from expertflow import Agent, Router, ConversationManager
 
 def print_step(title, description):
     print(f"\n{'-'*50}")
@@ -15,7 +15,7 @@ def print_step(title, description):
     time.sleep(1)
 
 def main():
-    print("🎓 Welcome to the SwitchboardAI Library Tutorial App!")
+    print("🎓 Welcome to the ExpertFlow AI Library Tutorial App!")
     print("This app will guide you through building a multi-agent system.\n")
 
     # 0. Setup API Key
