@@ -1,5 +1,5 @@
 import unittest
-from src import Agent, Router, MemoryOptimizer, Message
+from switchboard_ai import Agent, Router, MemoryOptimizer, Message
 
 class TestAgentSwitch(unittest.TestCase):
     def test_agent_creation(self):

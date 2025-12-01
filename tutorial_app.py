@@ -5,7 +5,7 @@ import time
 # Ensure the library is in the path for this tutorial
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from src import Agent, Router, ConversationManager
+from switchboard_ai import Agent, Router, ConversationManager
 
 def print_step(title, description):
     print(f"\n{'-'*50}")
