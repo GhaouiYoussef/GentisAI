@@ -1,6 +1,0 @@
-.env
-__pycache__/
-*.pyc
-.venv_test
-test_package_usage.py
-.vscode
