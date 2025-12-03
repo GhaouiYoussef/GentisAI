@@ -1,7 +1,7 @@
 from typing import List, Any, Dict, Optional
 from ..types import Message
 from .base import BaseLLM
-
+import os
 try:
     from google import genai
     from google.genai import types
@@ -10,11 +10,14 @@ except ImportError:
     types = None
 
 class GeminiLLM(BaseLLM):
-    def __init__(self, api_key: str, model_name: str = "gemini-2.0-flash"):
+    def __init__(self, api_key: Optional[str], model_name: str = "gemini-2.0-flash"):
         if not genai:
             raise ImportError("google-genai package is required for GeminiLLM")
-        
-        self.client = genai.Client(api_key=api_key)
+        #  lets check if its already an env var 
+        resolved_api_key = api_key or os.getenv("GOOGLE_API_KEY")
+        if not resolved_api_key:
+            raise ValueError("API key is required. Provide it directly or set GOOGLE_API_KEY in the environment.")
+        self.client = genai.Client(api_key=resolved_api_key)
         self.model_name = model_name
         self._last_usage = {"total": 0}
 
