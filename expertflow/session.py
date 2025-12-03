@@ -48,7 +48,7 @@ class ConversationManager:
         except Exception as e:
             print(f"Debug Log Error: {e}")
 
-    def process_turn(self, user_id: str, message: str) -> TurnResponse:
+    def process_turn(self, message: str, user_id: Optional[str] = None) -> TurnResponse:
         session = self._get_session(user_id)
         current_agent_name = session["current_agent"]
         history = session["history"]

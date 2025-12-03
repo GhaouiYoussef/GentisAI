@@ -18,10 +18,29 @@
 pip install expertflow-ai
 ```
 
+## CLI Usage
+
+ExpertFlow comes with a CLI to quickly scaffold new projects with best-practice templates.
+
+```bash
+# Initialize a new project
+expertflow init my_agent_project
+
+# Navigate to the project
+cd my_agent_project
+
+# Run the agent
+python main.py
+```
+
+This generates a folder structure with:
+*   `main.py`: The entry point for your agent.
+*   `prompts/`: Directory containing system prompts for the Orchestrator and Experts.
+
 ## Quick Start
 
 ```python
-from expertflow import Agent, Router, ConversationManager
+from expertflow import Agent, Router, ConversationManager, GeminiLLM
 
 # 1. Define your Agents
 orchestrator = Agent(
@@ -40,10 +59,11 @@ marketing_expert = Agent(
 router = Router(agents=[orchestrator, marketing_expert], default_agent=orchestrator)
 
 # 3. Manage Conversation
-manager = ConversationManager(router=router)
+# Set debug=True to see detailed routing logs and state changes
+manager = ConversationManager(router=router, llm=GeminiLLM(), debug=True)
 
 user_input = "How do I improve my SEO?"
-response = manager.process_turn(user_id="user_123", message=user_input)
+response = manager.process_turn(message=user_input)
 
 print(f"Agent: {response.agent_name}")
 print(f"Reply: {response.content}")
