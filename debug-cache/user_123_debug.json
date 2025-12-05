@@ -1,33 +1,19 @@
 {
-  "last_updated": "2025-12-05T19:42:05.437232",
-  "current_expert": "sales",
+  "last_updated": "2025-12-05T21:03:26.534023",
+  "current_expert": "support",
   "history": [
     {
       "role": "user",
-      "content": "holaa",
+      "content": "hey",
       "metadata": {
         "expert": "orchestrator"
       }
     },
     {
       "role": "assistant",
-      "content": "Hello! How can I help you today? Are you looking to fix a problem or explore new possibilities?\n",
+      "content": "Hi there! How can I help you today?\n",
       "metadata": {
         "expert": "orchestrator"
-      }
-    },
-    {
-      "role": "user",
-      "content": "yes, to buy a shirt",
-      "metadata": {
-        "expert": "sales"
-      }
-    },
-    {
-      "role": "assistant",
-      "content": "Okay, I can help with that! While I don't sell shirts directly, I can definitely assist if you're interested in learning more about our product offerings and pricing plans.\n\nTo help me understand your needs better and recommend the best solution for you, could you tell me a little bit about your team size and what you're hoping to achieve? Knowing your budget constraints would also be helpful!\n",
-      "metadata": {
-        "expert": "sales"
       }
     }
   ]
