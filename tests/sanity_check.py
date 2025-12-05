@@ -35,14 +35,14 @@ def run_sanity_check():
     # Step 1: General query
     print("Step 1: General query")
     resp1 = flow.process_turn("hi", user_id="sanity_user")
-    assert resp1.expert_name == "orchestrator", f"Expected orchestrator, got {resp1.expert_name}"
+    assert resp1.agent_name == "orchestrator", f"Expected orchestrator, got {resp1.agent_name}"
     assert resp1.response == "Hello!", f"Expected 'Hello!', got '{resp1.response}'"
     print("Step 1 Passed.")
     
     # Step 2: Switch context
     print("Step 2: Switch context")
     resp2 = flow.process_turn("write some code", user_id="sanity_user")
-    assert resp2.expert_name == "tech", f"Expected tech, got {resp2.expert_name}"
+    assert resp2.agent_name == "tech", f"Expected tech, got {resp2.agent_name}"
     assert resp2.switched == True, "Expected switched=True"
     print("Step 2 Passed.")
     
