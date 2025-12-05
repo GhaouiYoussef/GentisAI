@@ -36,7 +36,7 @@ def run_sanity_check():
     print("Step 1: General query")
     resp1 = flow.process_turn("hi", user_id="sanity_user")
     assert resp1.agent_name == "orchestrator", f"Expected orchestrator, got {resp1.agent_name}"
-    assert resp1.response == "Hello!", f"Expected 'Hello!', got '{resp1.response}'"
+    assert resp1.content == "Hello!", f"Expected 'Hello!', got '{resp1.content}'"
     print("Step 1 Passed.")
     
     # Step 2: Switch context
