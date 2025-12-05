@@ -1,8 +1,8 @@
 import unittest
-from agenticminds.session import Flow
-from agenticminds.router import Router
-from agenticminds.types import Expert
-from agenticminds.llm.mock import MockLLM
+from aghenticMinds.session import Flow
+from aghenticMinds.router import Router
+from aghenticMinds.types import Expert
+from aghenticMinds.llm.mock import MockLLM
 
 class TestSession(unittest.TestCase):
     def setUp(self):

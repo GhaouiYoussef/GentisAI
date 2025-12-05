@@ -1,4 +1,4 @@
-# AgenticMinds
+# AghenticMinds
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
@@ -6,9 +6,9 @@
 
 A lightweight library for multi-persona AI agent routing and state management.
 
-## Why AgenticMinds?
+## Why AghenticMinds?
 
-Building multi-agent systems often involves complex frameworks that are hard to debug and heavy to deploy. **AgenticMinds** is designed to be the opposite:
+Building multi-agent systems often involves complex frameworks that are hard to debug and heavy to deploy. **AghenticMinds** is designed to be the opposite:
 *   **Simple**: Minimal abstraction overhead.
 *   **Flexible**: Define experts as simple Python objects.
 *   **Transparent**: Full visibility into routing and state.
@@ -24,8 +24,8 @@ Building multi-agent systems often involves complex frameworks that are hard to 
 
 ## Story & Motivation
 
-AgenticMinds exists to make multi-agent development *ridiculously fast*.  
-Most agent frameworks either (a) force you to architect and wire everything from scratch, or (b) dump a huge, opinionated stack on your desk. AgenticMinds intentionally sits between: a tiny, composable routing + state layer that lets you assemble expert agents in minutes — but also provides the primitives you need to build robust production flows later.
+AghenticMinds exists to make multi-agent development *ridiculously fast*.  
+Most agent frameworks either (a) force you to architect and wire everything from scratch, or (b) dump a huge, opinionated stack on your desk. AghenticMinds intentionally sits between: a tiny, composable routing + state layer that lets you assemble expert agents in minutes — but also provides the primitives you need to build robust production flows later.
 
 We care about two developer problems:
 1. **Speed of iteration** — get a working multi-expert agent in < 5 minutes.  
@@ -33,7 +33,7 @@ We care about two developer problems:
 
 ## Robust routing — design trade-offs (latency vs multi-agent accuracy)
 
-Routing in multi-agent systems is a trade-off between **latency** and **routing accuracy / specialization**. AgenticMinds uses a pragmatic approach that balances both:
+Routing in multi-agent systems is a trade-off between **latency** and **routing accuracy / specialization**. AghenticMinds uses a pragmatic approach that balances both:
 
 - **Context-Aware LLM Routing**: Instead of brittle keyword heuristics, we use a lightweight LLM call to classify intent based on the most recent conversation history. This ensures high accuracy even for complex queries.
 - **Orchestrator-Guided Flow**: The Orchestrator acts as an intelligent internal helper, maintaining context and guiding the user to the correct expert only when necessary, preventing jarring context switches.
@@ -41,13 +41,13 @@ Routing in multi-agent systems is a trade-off between **latency** and **routing 
 
 This strategy lets you scale agent count while keeping the system responsive and accurate.
 
-## How AgenticMinds differs from existing solutions
+## How AghenticMinds differs from existing solutions
 
-- **Not a heavy orchestration platform** (e.g., compared to LangChain/CrewAI): AgenticMinds is intentionally a thin routing + state layer built for speed of development and pragmatic production readiness. It’s not trying to reimplement a whole pipeline ecosystem in v0.x.
+- **Not a heavy orchestration platform** (e.g., compared to LangChain/CrewAI): AghenticMinds is intentionally a thin routing + state layer built for speed of development and pragmatic production readiness. It’s not trying to reimplement a whole pipeline ecosystem in v0.x.
 
 - **Smaller surface area than “full agent frameworks”:** We trade off some advanced orchestration primitives early-on for better DX, smaller installs, and faster iteration cycles.
 
-- **Context-Aware Routing:** Many libraries rely on rigid keywords or heavy embedding databases. AgenticMinds uses a lightweight LLM classifier on the recent conversation window, ensuring accurate routing without the operational complexity.
+- **Context-Aware Routing:** Many libraries rely on rigid keywords or heavy embedding databases. AghenticMinds uses a lightweight LLM classifier on the recent conversation window, ensuring accurate routing without the operational complexity.
 
 - **Designed for incremental adoption:** Start with simple keyword or persona-based flows; progressively enable embedding routing, tools, and storage as the product matures — you don’t need to rewrite the app to scale.
 
@@ -57,7 +57,7 @@ This strategy lets you scale agent count while keeping the system responsive and
 graph TD
     User([User]) -->|Message| Flow[Flow Engine]
     
-    subgraph "AgenticMinds Core"
+    subgraph "AghenticMinds Core"
         Flow -->|1. Check Intent| Router{Router}
         
         Router -->|Match| ExpertA[Expert: Sales]
@@ -77,7 +77,7 @@ graph TD
 ## Installation
 
 ```bash
-pip install agenticminds
+pip install aghenticMinds
 ```
 
 ## Quick Start (No API Key Required)
@@ -85,8 +85,8 @@ pip install agenticminds
 You can test the flow logic immediately using the `MockLLM`.
 
 ```python
-from agenticminds import Expert, Router, Flow
-from agenticminds.llm import MockLLM
+from aghenticMinds import Expert, Router, Flow
+from aghenticMinds.llm import MockLLM
 
 # 1. Setup Mock LLM with routing rules
 llm = MockLLM(
@@ -115,7 +115,7 @@ To use with a real LLM (e.g., Gemini), simply switch the adapter (check `simple_
 
 ```python
 import os
-from agenticminds.llm import GeminiLLM
+from aghenticMinds.llm import GeminiLLM
 
 llm = GeminiLLM(model_name="gemini-2.0-flash", api_key=os.getenv("GOOGLE_API_KEY"))
 # ... rest is the same

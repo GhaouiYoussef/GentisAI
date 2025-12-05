@@ -1,7 +1,7 @@
 import unittest
-from agenticminds.router import Router
-from agenticminds.types import Expert
-from agenticminds.llm.mock import MockLLM
+from aghenticMinds.router import Router
+from aghenticMinds.types import Expert
+from aghenticMinds.llm.mock import MockLLM
 
 class TestRouter(unittest.TestCase):
     def setUp(self):

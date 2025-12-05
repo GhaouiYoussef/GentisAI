@@ -1,6 +1,6 @@
 import unittest
-from agenticminds.memory import PNNet
-from agenticminds.types import Message
+from aghenticMinds.memory import PNNet
+from aghenticMinds.types import Message
 
 class TestPNNet(unittest.TestCase):
     def test_prune(self):
