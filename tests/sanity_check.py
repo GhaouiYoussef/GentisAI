@@ -43,7 +43,7 @@ def run_sanity_check():
     print("Step 2: Switch context")
     resp2 = flow.process_turn("write some code", user_id="sanity_user")
     assert resp2.agent_name == "tech", f"Expected tech, got {resp2.agent_name}"
-    assert resp2.switched == True, "Expected switched=True"
+    assert resp2.switched_context == True, "Expected switched_context=True"
     print("Step 2 Passed.")
     
     print("Sanity Check Complete: SUCCESS")
