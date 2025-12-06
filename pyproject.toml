@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "aghentic-minds"
-version = "0.1.01"
+version = "0.1.12"
 description = "A lightweight library for multi-persona AI agent routing and state management."
 authors = [
   { name="GhaouiYoussef", email="youssefghaoui.pro@gmail.com" },

@@ -82,7 +82,7 @@ pip install aghentic-minds
 
 ## Quick Start (No API Key Required)
 
-You can test the flow logic immediately using the `MockLLM`.
+You can test the flow logic immediately using the `MockLLM` below, or `quick_mock_start.py`.
 
 ```python
 from aghentic_minds import Expert, Router, Flow

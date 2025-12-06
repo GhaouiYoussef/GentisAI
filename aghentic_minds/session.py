@@ -128,13 +128,21 @@ class Flow:
 
         # Check for MockLLM notice (Show only once)
         if isinstance(self.llm, MockLLM) and not self._mock_notice_shown:
+             # Helper for terminal hyperlinks: \033]8;;URL\033\\TEXT\033]8;;\033\\
+             def link(text, url):
+                 return f"\033]8;;{url}\033\\{text}\033]8;;\033\\"
+
+             adv_url = "https://github.com/GhaouiYoussef/AghenticMinds/blob/master/advanced_example.py"
+             simp_url = "https://github.com/GhaouiYoussef/AghenticMinds/blob/master/simple_example.py"
+
              print(f"\n{Colors.GREEN}┌────────────────────────────────────────────────────────────────────────┐")
              print(f"│  🚀 NOTE: This was a simulation using MockLLM (no API key required).   │")
              print(f"│  To see the real AI workflow with Gemini, try running:                 │")
              print(f"│                                                                        │")
-             print(f"│  python advanced_example.py                                            │")
+             # Padding calculated for inner width of 72 chars
+             print(f"│  python advanced_example.py ({link('Link', adv_url)})" + " " * 37 + "│")
              print("│  OR                                                                    │")
-             print(f"│  python simple_example.py                                              │")
+             print(f"│  python simple_example.py ({link('Link', simp_url)})" + " " * 39 + "│")
              print(f"└────────────────────────────────────────────────────────────────────────┘{Colors.ENDC}")
              self._mock_notice_shown = True
 
