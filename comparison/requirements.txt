@@ -1,4 +1,4 @@
-aghentic-minds
+gentis-ai
 crewai
 google-generativeai
 python-dotenv

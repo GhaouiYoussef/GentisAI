@@ -1,10 +1,10 @@
 import os
-from aghentic_minds import Expert, Router, Flow
-from aghentic_minds.llm import MockLLM
-from aghentic_minds.utils import Colors
+from gentis_ai import Expert, Router, Flow
+from gentis_ai.llm import MockLLM
+from gentis_ai.utils import Colors
 
 # 1. Setup Mock LLM (No API Key needed for testing)
-# In a real app, use: from aghentic_minds.llm import GeminiLLM
+# In a real app, use: from gentis_ai.llm import GeminiLLM
 llm = MockLLM(
     responses={
         "problem": "I can help with that. What seems to be the issue?",

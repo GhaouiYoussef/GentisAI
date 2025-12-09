@@ -1,4 +1,4 @@
---- Starting AghenticMinds Benchmark ---
+--- Starting GentisAI Benchmark ---
 
 --- Turn 1 ---
 User: I can't log in to my account. It keeps spinning.
@@ -66,7 +66,7 @@ This plan truly delivers significant ROI by enhancing productivity, streamlining
 Would you like me to walk you through some of the specific Enterprise features that would be most beneficial for a team of 10, or perhaps set up a brief call to discuss a tailored package for your organization's unique needs?
 
 
-AghenticMinds Results:
+GentisAI Results:
 Total Time (incl overhead): 133573.72 ms
 Sum of Turn Latencies: 12614.43 ms
 Total Tokens: 3077

@@ -2,10 +2,10 @@ import os
 import time
 import asyncio
 from dotenv import load_dotenv
-from aghentic_minds import Expert, Router, Flow
-from aghentic_minds.llm import GeminiLLM
-from aghentic_minds.types import Message
-from aghentic_minds.prompts import QUICK_START_SUPPORT, QUICK_START_ORCHESTRATOR, QUICK_START_SALES
+from gentis_ai import Expert, Router, Flow
+from gentis_ai.llm import GeminiLLM
+from gentis_ai.types import Message
+from gentis_ai.prompts import QUICK_START_SUPPORT, QUICK_START_ORCHESTRATOR, QUICK_START_SALES
 
 from crewai import Agent, Task, Crew, Process
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -32,13 +32,13 @@ def log_to_file(filename, content):
     with open(filename, "a", encoding="utf-8") as f:
         f.write(content + "\n")
 
-# --- AghenticMinds Setup ---
-def run_aghentic_minds():
-    filename = "comparison/aghentic_minds_results.txt"
+# --- GentisAI Setup ---
+def run_gentis_ai():
+    filename = "comparison/gentis_ai_results.txt"
     if os.path.exists(filename): os.remove(filename)
     
-    log_to_file(filename, "--- Starting AghenticMinds Benchmark ---")
-    print("\n--- Starting AghenticMinds Benchmark ---")
+    log_to_file(filename, "--- Starting GentisAI Benchmark ---")
+    print("\n--- Starting GentisAI Benchmark ---")
     start_time = time.time()
     
     # 1. Setup LLM
@@ -112,12 +112,12 @@ def run_aghentic_minds():
     end_time = time.time()
     total_time = (end_time - start_time) * 1000
     
-    summary = f"\nAghenticMinds Results:\nTotal Time (incl overhead): {total_time:.2f} ms\nSum of Turn Latencies: {total_latency:.2f} ms\nTotal Tokens: {total_tokens}"
+    summary = f"\nGentisAI Results:\nTotal Time (incl overhead): {total_time:.2f} ms\nSum of Turn Latencies: {total_latency:.2f} ms\nTotal Tokens: {total_tokens}"
     log_to_file(filename, summary)
     print(summary)
     
     return {
-        "framework": "AghenticMinds",
+        "framework": "GentisAI",
         "latency": total_latency,
         "tokens": total_tokens
     }
@@ -251,7 +251,7 @@ def run_crewai():
     }
 
 if __name__ == "__main__":
-    am_results = run_aghentic_minds()
+    am_results = run_gentis_ai()
     
     print("\nSleeping for 60s before starting CrewAI to reset quotas...")
     time.sleep(60)

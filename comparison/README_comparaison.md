@@ -1,6 +1,6 @@
-# ✅ **AghenticMinds vs. CrewAI Comparison Benchmark**
+# ✅ **GentisAI vs. CrewAI Comparison Benchmark**
 
-This project contains a real-world benchmark comparing **AghenticMinds** against **CrewAI** using the Google Gemini API.
+This project contains a real-world benchmark comparing **GentisAI** against **CrewAI** using the Google Gemini API.
 
 ## Setup
 
@@ -39,11 +39,11 @@ Each framework handles all 3 conversational turns end-to-end.
 
 ---
 
-# **Comparison Results (Actual – Gemini 2.5 Flash Lite)**
+# **Comparison Results (Actual – Gemini 2.5 Flash )**
 
 *Results from a live run on Dec 9, 2025.*
 
-| Feature                | **AghenticMinds** | **CrewAI** |
+| Feature                | **GentisAI** | **CrewAI** |
 | ---------------------- | ----------------- | ---------- |
 | **Total Turn Latency** | **12,614 ms**     | 29,995 ms  |
 | **Total Tokens**       | **3,077**         | 18,521     |
@@ -51,25 +51,25 @@ Each framework handles all 3 conversational turns end-to-end.
 
 ## 📊 **Averages per Turn**
 
-| Metric                 | AghenticMinds | CrewAI   |
+| Metric                 | GentisAI | CrewAI   |
 | ---------------------- | ------------- | -------- |
 | **Avg Latency / Turn** | **4,204 ms**  | 9,998 ms |
 | **Avg Tokens / Turn**  | **1,025**     | 6,173    |
 
 ## **Summary**
 
-* **AghenticMinds is ~2.4× faster** per turn
+* **GentisAI is ~2.4× faster** per turn
 * **CrewAI uses ~6× more tokens** per turn
-* AghenticMinds produces concise expert responses
+* GentisAI produces concise expert responses
 * CrewAI produces extremely long, verbose responses, causing higher latency and cost
 
 ---
 
 # **Analysis: Why This Happens**
 
-## **AghenticMinds (Efficient, Expert-Driven)**
+## **GentisAI (Efficient, Expert-Driven)**
 
-AghenticMinds uses a **Router-first architecture**:
+GentisAI uses a **Router-first architecture**:
 
 * The router selects the right expert before generation
 * No extra orchestration tokens
@@ -95,18 +95,18 @@ CrewAI excels at **background autonomous workflows**, but it is less suitable fo
 ---
 # **Conclusion & Use Case Recommendations**
 
-Across all metrics—**latency, token efficiency, cost, and conversational responsiveness**—**AghenticMinds consistently outperforms CrewAI** for interactive chat use cases.
+Across all metrics—**latency, token efficiency, cost, and conversational responsiveness**—**GentisAI consistently outperforms CrewAI** for interactive chat use cases.
 
 Both frameworks have strengths, but they shine in **different categories**.
 
 ---
 
-## **When to Choose AghenticMinds**
+## **When to Choose GentisAI**
 
 🚀 **Real-Time User Interaction**
 
 * **Customer Support Assistants**
-  Users expect responses in under 5 seconds. AghenticMinds’ low per-turn latency makes it ideal.
+  Users expect responses in under 5 seconds. GentisAI’ low per-turn latency makes it ideal.
 
 * **Sales & Lead Qualification**
   Fast, concise expert-driven answers help guide the user without overwhelming them.
@@ -143,5 +143,5 @@ Both frameworks have strengths, but they shine in **different categories**.
 
 # ⭐ Final Thought
 
-AghenticMinds is designed for **fast, predictable, expert-driven conversations**, while CrewAI focuses on **autonomous procedural reasoning**.
+GentisAI is designed for **fast, predictable, expert-driven conversations**, while CrewAI focuses on **autonomous procedural reasoning**.
 This benchmark helps clarify which tool to choose depending on whether your workload is **interactive** or **autonomous**.

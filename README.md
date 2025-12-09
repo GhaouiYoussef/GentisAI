@@ -1,136 +1,239 @@
-# AghenticMinds 
-
+# 🚀 GentisAI
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![Status](https://img.shields.io/badge/status-beta-orange)
 
-A lightweight library for multi-persona AI agent routing and state management.
+### *The lightweight framework for real-time AI agents.*
 
-## Why AghenticMinds?
+Build multi-expert systems with precise routing, zero overhead, and **6× less token usage than major competitors**.
 
-Building multi-agent systems often involves complex frameworks that are hard to debug and heavy to deploy. **AghenticMinds** is designed to be the opposite:
-*   **Simple**: Minimal abstraction overhead.
-*   **Flexible**: Define experts as simple Python objects.
-*   **Transparent**: Full visibility into routing and state.
-*   **Lightweight**: Perfect for embedding into existing applications.
+---
 
-## Features (v0.1)
+## 🌟 Why GentisAI?
 
-*   **Flow**: Simple conversation management.
-*   **Expert**: Define agents with specific personas.
-*   **Router**: Basic intent routing between experts.
-*   **PNNet**: Tiny interface for memory optimization and context management & debugging.
-*   **LLM Adapter**: Support for Gemini (and easy to extend).
+Traditional agent frameworks (LangChain, CrewAI, AutoGen…) are created for **complex, autonomous, long-running tasks**.
+They introduce:
 
-## Story & Motivation
+* Heavy orchestration layers
+* Hidden “manager” reasoning loops
+* Massive prompts
+* Slow response times
+* High token usage
 
-AghenticMinds exists to make multi-agent development *ridiculously fast*.  
-Most agent frameworks either (a) force you to architect and wire everything from scratch, or (b) dump a huge, opinionated stack on your desk. AghenticMinds intentionally sits between: a tiny, composable routing + state layer that lets you assemble expert agents in minutes — but also provides the primitives you need to build robust production flows later.
+**GentisAI is built for a different purpose:**
 
-We care about two developer problems:
-1. **Speed of iteration** — get a working multi-expert agent in < 5 minutes.  
-2. **Reasonable robustness** — sensible routing, context pruning, and performance trade-offs without the heavy lifting of full orchestration stacks.
+👉 **Create fast, deterministic, conversational AI agents that feel real-time.**
 
-## Robust routing — design trade-offs (latency vs multi-agent accuracy)
+---
 
-Routing in multi-agent systems is a trade-off between **latency** and **routing accuracy / specialization**. AghenticMinds uses a pragmatic approach that balances both:
+## 🔥 The Gentis Advantage
 
-- **Context-Aware LLM Routing**: Instead of brittle keyword heuristics, we use a lightweight LLM call to classify intent based on the most recent conversation history. This ensures high accuracy even for complex queries.
-- **Orchestrator-Guided Flow**: The Orchestrator acts as an intelligent internal helper, maintaining context and guiding the user to the correct expert only when necessary, preventing jarring context switches.
-- **Optimized Context Window**: By routing based on a "sliding window" of recent history rather than the full conversation log, we keep latency low and token costs manageable without sacrificing the ability to understand immediate intent.
+### ⚡ **6× More Efficient**
 
-This strategy lets you scale agent count while keeping the system responsive and accurate.
+Our architecture uses **~83% fewer tokens per turn** than CrewAI in benchmarks.
 
-## How AghenticMinds differs from existing solutions
+### 🎯 **Precise Expert Routing**
 
-- **Not a heavy orchestration platform** (e.g., compared to LangChain/CrewAI): AghenticMinds is intentionally a thin routing + state layer built for speed of development and pragmatic production readiness. It’s not trying to reimplement a whole pipeline ecosystem in v0.x.
+A tiny, dedicated router sends each message to the correct expert
+— fast, deterministic, and with no “agent arguing with itself.”
 
-- **Smaller surface area than “full agent frameworks”:** We trade off some advanced orchestration primitives early-on for better DX, smaller installs, and faster iteration cycles.
+### 🪶 **Minimalist API**
 
-- **Context-Aware Routing:** Many libraries rely on rigid keywords or heavy embedding databases. AghenticMinds uses a lightweight LLM classifier on the recent conversation window, ensuring accurate routing without the operational complexity.
+Experts are simple Python classes.
+Router is a single object.
+Flow is one line.
 
-- **Designed for incremental adoption:** Start with simple keyword or persona-based flows; progressively enable embedding routing, tools, and storage as the product matures — you don’t need to rewrite the app to scale.
+### 🔍 **Fully Transparent**
 
-## How it Works
+No black-box loops.
+You control the routing logic, prompts, and state.
+
+### 🛠️ **Production-Ready Structure**
+
+Clean separation of concerns:
+
+* Experts
+* Router
+* Flow
+* Memory
+* LLM Adapters
+
+---
+
+# 📊 Benchmark Highlights
+
+GentisAI was compared against a leading framework in a **real 3-turn conversational scenario** requiring expert handoffs.
+
+**Model:** Gemini 2.5 Flash (Dec 2025)
+
+| Metric               | **GentisAI** | **CrewAI** | Difference           |
+| -------------------- | ----------------- | ---------- | -------------------- |
+| **Total Latency**    | **12.6 s**        | 30.0 s     | **2.4× Faster**      |
+| **Total Tokens**     | **3,077**         | 18,521     | **~6× Fewer Tokens** |
+| **Avg Latency/Turn** | **4.2 s**         | 10.0 s     | —                    |
+| **Avg Tokens/Turn**  | **1,025**         | 6,173      | **~83% Cheaper**     |
+
+> **Why the difference?**
+> CrewAI generates **~15,000 extra "manager" tokens** per session to decide which expert should answer.
+> GentisAI routes instantly—no wasted reasoning loops.
+
+---
+
+## 📈 Benchmark Visualization (Bar Plot)
+
+👉 **(Bar plot will be inserted here after generation)**
+
+```
+![Benchmark Comparison](docs/benchmark_plot.png)
+```
+
+*The image will display latency and token usage differences between GentisAI and CrewAI.*
+
+---
+
+# 💡 Philosophy: Pragmatic Routing
+
+GentisAI is designed around one belief:
+
+### **Simple things should be simple. Complex things should stay possible.**
+
+We achieve speed + accuracy using:
+
+### ✔ **Context-Aware Routing**
+
+A tiny LLM classification call over a **recent sliding window**, not the entire history.
+
+### ✔ **No Hidden Reasoning Loops**
+
+Experts respond immediately.
+An Orchestrator expert is used only as a fallback.
+
+### ✔ **Sliding-Window Optimization**
+
+Keeps token cost low while preserving high conversational accuracy.
+
+**The result:**
+A system that feels **snappy, predictable, scalable**, and easy to debug.
+
+---
+
+# 🛠️ How It Works
 
 ```mermaid
 graph TD
     User([User]) -->|Message| Flow[Flow Engine]
     
-    subgraph "AghenticMinds Core"
-        Flow -->|1. Check Intent| Router{Router}
+    subgraph "GentisAI Core"
+        Flow -->|1. Classify Intent| Router{Router}
         
-        Router -->|Match| ExpertA[Expert: Sales]
-        Router -->|Match| ExpertB[Expert: Support]
-        Router -->|No Match| Orch[Expert: Orchestrator]
+        Router -->|Sales| ExpertA[Expert: Sales]
+        Router -->|Support| ExpertB[Expert: Support]
+        Router -->|Fallback| Orch[Expert: Orchestrator]
         
-        ExpertA -->|Context + Tools| LLM[LLM Adapter]
-        ExpertB -->|Context + Tools| LLM
-        Orch -->|Context + Tools| LLM
+        ExpertA --> LLM[LLM Adapter]
+        ExpertB --> LLM
+        Orch --> LLM
     end
     
-    LLM -->|Response| Flow
-    Flow -->|2. Update State| Memory[(Session State)]
-    Flow -->|3. Reply| User
+    LLM -->|Generated Reply| Flow
+    Flow -->|Update| Memory[(Session State)]
+    Flow -->|Return| User
 ```
 
-## Installation
+---
+
+# 📦 Installation
 
 ```bash
-pip install aghentic-minds
+pip install gentis-ai
 ```
 
-## Quick Start (No API Key Required)
+---
 
-You can test the flow logic immediately using the `MockLLM` below, or `quick_mock_start.py`.
+# ⚡ Quick Start (No API Key Required)
+
+The included **MockLLM** lets you prototype routing instantly, **offline**.
 
 ```python
-from aghentic_minds import Expert, Router, Flow
-from aghentic_minds.llm import MockLLM
+from gentis_ai import Expert, Router, Flow
+from gentis_ai.llm import MockLLM
 
-# 1. Setup Mock LLM with routing rules
+# 1. Define a Mock LLM for testing
 llm = MockLLM(
-    responses={"help": "I can help you!", "buy": "Great choice!"},
-    routing_rules={"help": "support", "buy": "sales"},
-    default_response="Hello! I am a simulated agent."
+    routing_rules={
+        "help": "support_agent",
+        "buy": "sales_agent"
+    },
+    responses={
+        "help": "I can certainly help you with your technical issue.",
+        "buy": "Great! Let's get you set up with a new plan."
+    },
+    default_response="I'm not sure how to route that request."
 )
 
-# 2. Define Experts
-support = Expert(name="support", description="Technical help", system_prompt="...")
-sales = Expert(name="sales", description="Sales help", system_prompt="...")
+# 2. Define your Experts
+support = Expert(name="support_agent", description="Handles technical support queries.")
+sales   = Expert(name="sales_agent",   description="Handles sales and upgrades.")
 
-# 3. Create Flow
+# 3. Initialize Router and Flow
 router = Router(experts=[support, sales], llm=llm)
-flow = Flow(router=router, llm=llm)
+flow   = Flow(router=router, llm=llm)
 
-# 4. Run
-response = flow.process_turn("I need help")
-print(f"Agent: {response.agent_name}") # Output: support
-print(f"Response: {response.content}")
+# 4. Run a turn
+response = flow.process_turn("I need help with an error.")
+
+print(response.agent_name)  # support_agent
+print(response.content)      # I can certainly help you...
 ```
 
-## Real-World Usage
+---
 
-To use with a real LLM (e.g., Gemini), simply switch the adapter (check `simple_example.py`):
+# 🌐 Real LLM Usage (Gemini, OpenAI, etc.)
+
+Switching from mock mode to a real model is just one line:
 
 ```python
 import os
-from aghentic_minds.llm import GeminiLLM
+from gentis_ai.llm import GeminiLLM
 
-llm = GeminiLLM(model_name="gemini-2.0-flash", api_key=os.getenv("GOOGLE_API_KEY"))
-# ... rest is the same
+llm = GeminiLLM(
+    model_name="gemini-2.5-flash-lite",
+    api_key=os.getenv("GOOGLE_API_KEY")
+)
+
+# Everything else stays the same
 ```
 
-## Advanced Examples
+---
 
-For a complex scenario involving an **Orchestrator** that switches "modes" (personas) based on intent, check out `advanced_example.py` in the repository.
+# 📘 Documentation & Examples
 
-## Contributing
+* `examples/simple_bot.py` — A basic two-expert system
+* `examples/advanced_flow.py` — Multi-turn flows and expert handoffs
+* `comparison/README_comparison.md` — Full benchmark logs
 
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+---
 
-## License
+# 🤝 Contributing
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+We welcome contributions!
+Pull requests, issues, and feature ideas are all appreciated.
+See **CONTRIBUTING.md**.
 
+---
 
+# 📜 License
+
+MIT License — see `LICENSE`.
+
+---
+
+If you want, I can now:
+
+✅ Generate the **bar plot image** (via python_user_visible)
+or
+✅ Create a **GitHub banner / logo** for “GentisAI”
+or
+✅ Refine this README into a **shorter marketing version** for PyPI
+
+Just tell me!

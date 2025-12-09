@@ -1,8 +1,8 @@
 import unittest
-from aghentic_minds.session import Flow
-from aghentic_minds.router import Router
-from aghentic_minds.types import Expert, Message
-from aghentic_minds.llm.mock import MockLLM
+from gentis_ai.session import Flow
+from gentis_ai.router import Router
+from gentis_ai.types import Expert, Message
+from gentis_ai.llm.mock import MockLLM
 
 class TestTokenUsage(unittest.TestCase):
     def setUp(self):
