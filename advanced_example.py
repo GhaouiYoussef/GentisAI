@@ -75,6 +75,7 @@ def main():
                 agent_color = Colors.RED
             
             print(f"{agent_color}[{response.agent_name.upper()}]: {Colors.ENDC}{response.content}\n")
+            print(f"{Colors.CYAN}Token Usage: {response.token_usage}{Colors.ENDC}\n")
             
         except KeyboardInterrupt:
             break

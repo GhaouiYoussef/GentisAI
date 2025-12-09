@@ -49,6 +49,7 @@ print(f"User: {user_input}")
 response = flow.process_turn(user_input)
 print(f"Agent: {response.agent_name}")
 print(f"Response: {response.content}")
+print(f"Token Usage: {response.token_usage}")
 
 print("\n--- Turn 2 ---")
 user_input = "How much does the premium plan cost?"
@@ -56,3 +57,4 @@ print(f"User: {user_input}")
 response = flow.process_turn(user_input)
 print(f"Agent: {response.agent_name}")
 print(f"Response: {response.content}")
+print(f"Token Usage: {response.token_usage}")
