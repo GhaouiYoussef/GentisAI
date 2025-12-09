@@ -1,0 +1,5 @@
+aghentic-minds
+crewai
+google-generativeai
+python-dotenv
+langchain-google-genai

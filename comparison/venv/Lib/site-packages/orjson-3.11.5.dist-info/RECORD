@@ -1,0 +1,11 @@
+orjson-3.11.5.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+orjson-3.11.5.dist-info/METADATA,sha256=PdS4xzgtAM3yNQgYPqjtpax2ovxFL3n4ZzKF5mUK844,42737
+orjson-3.11.5.dist-info/RECORD,,
+orjson-3.11.5.dist-info/WHEEL,sha256=MicGETHZ2NSvTN4l4NAAzDXbOHnrlOKS0CnBsnFTiLs,97
+orjson-3.11.5.dist-info/licenses/LICENSE-APACHE,sha256=fP1zjFPWHHnwfjSPYiv3cHyQhCNwVNN_vgd4inX1iBw,11048
+orjson-3.11.5.dist-info/licenses/LICENSE-MIT,sha256=NlFq79yExdWh50hUJZE6ItvaaesZMMXoTWrklytRlLk,1046
+orjson/__init__.py,sha256=KHkFayava2qw38sKmCiqaiWVYiV7aMulJdG-epXEIpQ,640
+orjson/__init__.pyi,sha256=jcVcpMGnOXECWo5cTUFFoEcWsPv3HW3kFb-F5jUuKVE,884
+orjson/__pycache__/__init__.cpython-312.pyc,,
+orjson/orjson.cp312-win_amd64.pyd,sha256=L2uC5NhE_jWjrVu9udIFjAyOnumgOoZcTl0Vw0mOIuY,231424
+orjson/py.typed,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
