@@ -61,6 +61,7 @@ Clean separation of concerns:
 ---
 
 # 📊 Benchmark Highlights
+### Multi-Context Vs Multi-Agents
 
 GentisAI was compared against a leading framework in a **real 3-turn conversational scenario** requiring expert handoffs.
 
@@ -77,6 +78,8 @@ GentisAI was compared against a leading framework in a **real 3-turn conversatio
 > CrewAI generates **~15,000 extra "manager" tokens** per session to decide which expert should answer.
 > GentisAI routes instantly—no wasted reasoning loops.
 
+** **You can find the outputs and code of each framework in** `comparison/` **folder.**
+
 ---
 
 ## 📈 Benchmark Visualization (Bar Plot)
@@ -91,13 +94,13 @@ GentisAI was compared against a leading framework in a **real 3-turn conversatio
 
 ---
 
-# 💡 Philosophy: Pragmatic Routing
+# 💡 Philosophy: Pragmatic Routing & Naming
 
-GentisAI is designed around one belief:
+The name *GentisAI* is inspired by the Latin root $\mathbf{agentis}$ (the genitive form of $\mathbf{agens}$), which means “of the agent” or “the one doing.”
 
 ### **Simple things should be simple. Complex things should stay possible.**
 
-We achieve speed + accuracy using:
+We achieve this latency and efficiency trade-off by focusing on three core principles:
 
 ### ✔ **Context-Aware Routing**
 
@@ -113,7 +116,8 @@ An Orchestrator expert is used only as a fallback.
 Keeps token cost low while preserving high conversational accuracy.
 
 **The result:**
-A system that feels **snappy, predictable, scalable**, and easy to debug.
+
+This foundation reflects our core belief: that high-performance AI systems must be built by focusing on the precise actions of the agent—optimizing every step to ensure **speed**, **efficiency (low cost)**, and **deterministic routing**.
 
 ---
 
@@ -188,7 +192,7 @@ print(response.content)      # I can certainly help you...
 
 ---
 
-# 🌐 Real LLM Usage (Gemini, OpenAI, etc.)
+# 🌐 Real LLM Usage (Gemini, etc.)
 
 Switching from mock mode to a real model is just one line:
 
@@ -227,13 +231,3 @@ See **CONTRIBUTING.md**.
 MIT License — see `LICENSE`.
 
 ---
-
-If you want, I can now:
-
-✅ Generate the **bar plot image** (via python_user_visible)
-or
-✅ Create a **GitHub banner / logo** for “GentisAI”
-or
-✅ Refine this README into a **shorter marketing version** for PyPI
-
-Just tell me!
