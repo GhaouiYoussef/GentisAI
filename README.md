@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/GhaouiYoussef/expertflow-ai/master/assets/logo.png" alt="AghenticMinds Logo" width="300"/>
+</p>
+
 # 🚀 GentisAI
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Python](https://img.shields.io/badge/python-3.11%2B-blue)
