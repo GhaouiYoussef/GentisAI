@@ -84,11 +84,10 @@ GentisAI was compared against a leading framework in a **real 3-turn conversatio
 
 ## 📈 Benchmark Visualization (Bar Plot)
 
-👉 **(Bar plot will be inserted here after generation)**
 
-```
-![Benchmark Comparison](comparison/Figure_Comp_MA_MC.png)
-```
+
+<img width="1200" height="500" label="Benchmark Comparison" alt="Figure_Comp_MA_MC" src="https://github.com/user-attachments/assets/19f85fbf-7faf-47c1-842a-6588d2b347b4" />
+
 
 *The image will display latency and token usage differences between GentisAI and CrewAI.*
 
