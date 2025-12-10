@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gentis-ai"
-version = "0.1.0"
+version = "0.1.1"
 description = "A lightweight library for multi-persona AI agent routing and state management."
 authors = [
   { name="GhaouiYoussef", email="youssefghaoui.pro@gmail.com" },
