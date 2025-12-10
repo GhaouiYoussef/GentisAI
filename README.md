@@ -1,13 +1,9 @@
 
-<!-- <img width="3780" height="1227" alt="GentisAI-bannerr" src="https://github.com/user-attachments/assets/aac59a0b-a27d-476b-a7bb-58e5c358f2af" /> -->
-<p align="center">
-<img width="500" height="522" alt="GentisAI-B-banner-r" src="https://github.com/user-attachments/assets/5a811f27-9803-487a-a04d-a6bf17575135" />
-</p>
 <div align="center">
     <picture>
       <source media="(prefers-color-scheme: light)" srcset=".github/images/GentisAI-B-banner-r.svg">
       <source media="(prefers-color-scheme: dark)" srcset=".github/images/GentisAI-B-banner-r.svg">
-      <img alt="GentisAI-B-banner-r" src=".github/images/GentisAI-B-banner-r.svg" width="80%">
+      <img alt="GentisAI-B-banner-r" src=".github/images/GentisAI-B-banner-r.svg" width="10%">
     </picture>
 </div>
 
