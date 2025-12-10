@@ -1,6 +1,14 @@
+
 <p align="center">
-  <img src="https://raw.githubusercontent.com/GhaouiYoussef/expertflow-ai/master/assets/logo.png" alt="AghenticMinds Logo" width="300"/>
+<img width="500" height="522" alt="GentisAI-B-banner-r" src="https://github.com/user-attachments/assets/5a811f27-9803-487a-a04d-a6bf17575135" />
 </p>
+<div align="center">
+    <picture>
+      <source media="(prefers-color-scheme: light)" srcset=".github/images/GentisAI-B-banner-r.svg">
+      <source media="(prefers-color-scheme: dark)" srcset=".github/images/GentisAI-B-banner-r.svg">
+      <img alt="GentisAI-B-banner-r" src=".github/images/GentisAI-B-banner-r.svg" width="80%">
+    </picture>
+</div>
 
 # 🚀 GentisAI
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
