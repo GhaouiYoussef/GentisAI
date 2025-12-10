@@ -1,4 +1,5 @@
 
+<!-- <img width="3780" height="1227" alt="GentisAI-bannerr" src="https://github.com/user-attachments/assets/aac59a0b-a27d-476b-a7bb-58e5c358f2af" /> -->
 <p align="center">
 <img width="500" height="522" alt="GentisAI-B-banner-r" src="https://github.com/user-attachments/assets/5a811f27-9803-487a-a04d-a6bf17575135" />
 </p>
@@ -10,18 +11,23 @@
     </picture>
 </div>
 
-# 🚀 GentisAI
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Python](https://img.shields.io/badge/python-3.11%2B-blue)
-![Status](https://img.shields.io/badge/status-beta-orange)
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-blue.svg" />
+  <img src="https://img.shields.io/badge/python-3.11%2B-blue" />
+  <img src="https://img.shields.io/badge/status-beta-orange" />
+</p>
 
-### *The lightweight framework for real-time AI agents.*
+<h3 align="center"><i>The lightweight framework for real-time AI agents.</i></h3>
 
-Build multi-expert systems with precise routing, zero overhead, and **6× less token usage than major competitors**.
+<p align="center">
+  Build multi-expert systems with precise routing, zero overhead, and
+  <b>6× less token usage than major competitors</b>.
+</p>
+
 
 ---
 
-## 🌟 Why GentisAI?
+# Why GentisAI?
 
 Traditional agent frameworks (LangChain, CrewAI, AutoGen…) are created for **complex, autonomous, long-running tasks**.
 They introduce:
