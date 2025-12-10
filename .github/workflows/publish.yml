@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: pypi
-      url: https://pypi.org/p/AghenticMinds
+      url: https://pypi.org/p/gentis-ai
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
