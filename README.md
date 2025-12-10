@@ -1,7 +1,8 @@
 
 <!-- <img width="3780" height="1227" alt="GentisAI-bannerr" src="https://github.com/user-attachments/assets/aac59a0b-a27d-476b-a7bb-58e5c358f2af" /> -->
-<img width="2279" height="722" alt="GentisAI-B-banner-r" src="https://github.com/user-attachments/assets/5a811f27-9803-487a-a04d-a6bf17575135" />
-
+<p align="center">
+<img width="800" height="722" alt="GentisAI-B-banner-r" src="https://github.com/user-attachments/assets/5a811f27-9803-487a-a04d-a6bf17575135" />
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/license-MIT-blue.svg" />
