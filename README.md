@@ -3,7 +3,7 @@
     <picture>
       <source media="(prefers-color-scheme: light)" srcset=".github/images/GentisAI-B-banner-r.svg">
       <source media="(prefers-color-scheme: dark)" srcset=".github/images/GentisAI-B-banner-r.svg">
-      <img alt="GentisAI-B-banner-r" src=".github/images/GentisAI-B-banner-r.svg" width="10%">
+      <img alt="GentisAI-B-banner-r" src=".github/images/GentisAI-B-banner-r.svg" width="80%">
     </picture>
 </div>
 
