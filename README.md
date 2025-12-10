@@ -1,7 +1,6 @@
 
-<!-- <img width="3780" height="1227" alt="GentisAI-bannerr" src="https://github.com/user-attachments/assets/aac59a0b-a27d-476b-a7bb-58e5c358f2af" /> -->
 <p align="center">
-<img width="500" height="522" alt="GentisAI-B-banner-r" src="https://github.com/user-attachments/assets/5a811f27-9803-487a-a04d-a6bf17575135" />
+  <img src="https://raw.githubusercontent.com/GhaouiYoussef/GentisAI/master/assets/Logo.png" alt="GentisAI Logo">
 </p>
 
 <p align="center">
@@ -97,7 +96,7 @@ GentisAI was compared against a leading framework in a **real 3-turn conversatio
 
 
 
-<img width="1200" height="500" label="Benchmark Comparison" alt="Figure_Comp_MA_MC" src="https://github.com/user-attachments/assets/19f85fbf-7faf-47c1-842a-6588d2b347b4" />
+![Benchmark Comparison](https://github.com/user-attachments/assets/19f85fbf-7faf-47c1-842a-6588d2b347b4)
 
 
 *The image will display latency and token usage differences between GentisAI and CrewAI.*
