@@ -137,24 +137,53 @@ This foundation reflects our core belief: that high-performance AI systems must 
 # 🛠️ How It Works
 
 ```mermaid
-graph TD
-    User([User]) -->|Message| Flow[Flow Engine]
-    
+flowchart TD
+    %% Define Styles
+    classDef userStyle fill:#e6f7ff,stroke:#007acc,stroke-width:2px;
+    classDef flowStyle fill:#fffbe6,stroke:#f7b731,stroke-width:2px;
+    classDef memoryStyle fill:#fde0dc,stroke:#ba1a1a,stroke-width:2px;
+    classDef expertStyle fill:#e5ffe5,stroke:#36b37e,stroke-width:2px;
+    classDef routerStyle fill:#ebedfa,stroke:#7057c6,stroke-width:2px;
+    classDef llmStyle fill:#f0f5ff,stroke:#2a62ff,stroke-width:2px;
+    classDef orchStyle fill:#fff6e9,stroke:#e67e22,stroke-width:2px;
+
+    %% Main Nodes with Improved Shapes
+    User@{ shape: stadium, label: "User" }
+    Flow@{ shape: rect, label: "Flow Engine" }
+    Memory@{ shape: cyl, label: "Session State" }
+
+    %% Subgraph for GentisAI Core
     subgraph "GentisAI Core"
-        Flow -->|1. Classify Intent| Router{Router}
-        
-        Router -->|Sales| ExpertA[Expert: Sales]
-        Router -->|Support| ExpertB[Expert: Support]
-        Router -->|Fallback| Orch[Expert: Orchestrator]
-        
-        ExpertA --> LLM[LLM Adapter]
-        ExpertB --> LLM
-        Orch --> LLM
+        Router@{ shape: diamond, label: "Router" }
+        ExpertA@{ shape: rect, label: "Expert: Sales" }
+        ExpertB@{ shape: rect, label: "Expert: Support" }
+        Orch@{ shape: rect, label: "Orchestrator" }
+        LLM@{ shape: rect, label: "LLM Adapter" }
     end
-    
-    LLM -->|Generated Reply| Flow
-    Flow -->|Update| Memory[(Session State)]
+
+    %% Flows
+    User -->|Message| Flow
+    Flow -->|1. Classify Intent| Router
+
+    Router -->|Sales| ExpertA
+    Router -->|Support| ExpertB
+    Router -->|Fallback| Orch
+
+    ExpertA --> LLM
+    ExpertB --> LLM
+    Orch --> LLM
+    LLM -->|2. Generated Reply| Flow
+    Flow -->|3. Update| Memory
     Flow -->|Return| User
+
+    %% Style the nodes
+    class User userStyle;
+    class Flow flowStyle;
+    class Memory memoryStyle;
+    class ExpertA,ExpertB expertStyle;
+    class Router routerStyle;
+    class Orch orchStyle;
+    class LLM llmStyle;
 ```
 
 ---
