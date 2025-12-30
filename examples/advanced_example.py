@@ -1,22 +1,27 @@
 import os
 import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from gentis_ai import Expert, Router, Flow
-from gentis_ai.llm import OllamaLLM
+from gentis_ai.llm import GeminiLLM
 from gentis_ai.utils import Colors
 
 # Import pre-defined prompts for quick start
 from gentis_ai.prompts import QUICK_START_SALES, QUICK_START_SUPPORT, QUICK_START_ORCHESTRATOR
 
+from dotenv import load_dotenv
+load_dotenv()
+
 def main():
     # 1. Setup LLM
-    # Ensure you have Ollama running (ollama serve) and the model pulled
-    # Example: ollama pull granite4:micro
-    llm = OllamaLLM(
-        model_name="granite4:micro", 
-        host="http://localhost:11434"
-    )
+    api_key = os.getenv("GOOGLE_API_KEY", "")
+    if not api_key:
+        print("Please set the GOOGLE_API_KEY environment variable.")
+        return
 
-    # 2. Load Prompts
+    llm = GeminiLLM(model_name="gemini-2.0-flash", api_key=api_key)
+
+    # 2. Load Prompts (Now using imported constants)
     sales_prompt = QUICK_START_SALES
     support_prompt = QUICK_START_SUPPORT
     orch_prompt = QUICK_START_ORCHESTRATOR
@@ -41,6 +46,7 @@ def main():
     )
 
     # 4. Setup Router
+    # We pass the orchestrator as the default_expert
     router = Router(
         experts=[sales_expert, support_expert, orchestrator],
         llm=llm,
@@ -50,11 +56,11 @@ def main():
     # 5. Create Flow
     flow = Flow(router=router, llm=llm, debug=True)
 
-    print(f"{Colors.HEADER}=== gentis_ai Advanced Ollama Example ==={Colors.ENDC}")
+    print(f"{Colors.HEADER}=== gentis_ai Advanced Example ==={Colors.ENDC}")
     print("Type 'exit' to quit.\n")
 
     # 6. Interactive Loop
-    user_id = "user_ollama_1"
+    user_id = "user_123"
     
     while True:
         try:

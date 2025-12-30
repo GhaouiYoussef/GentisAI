@@ -254,8 +254,9 @@ llm = GeminiLLM(
 
 # 📘 Documentation & Examples
 
-* `examples/simple_bot.py` — A basic two-expert system
-* `examples/advanced_flow.py` — Multi-turn flows and expert handoffs
+* [**Official Documentation**](https://gentisaidocumentation.vercel.app/)
+* `examples/simple_example.py` — A basic two-expert system
+* `examples/advanced_example.py` — Multi-turn flows and expert handoffs
 * `comparison/README_comparison.md` — Full benchmark logs
 
 ---
