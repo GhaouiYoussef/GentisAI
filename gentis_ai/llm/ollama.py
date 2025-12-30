@@ -35,10 +35,14 @@ class OllamaLLM(BaseLLM):
             ollama_messages.append({"role": msg.role, "content": msg.content})
 
         # Handle tools if provided
-        # Ollama python client supports tools in chat
         api_kwargs = kwargs.copy()
+        tool_map = {}
         if tools:
             api_kwargs["tools"] = tools
+            # Create a mapping of function names to callables
+            for t in tools:
+                if callable(t):
+                    tool_map[t.__name__] = t
 
         try:
             response = self.client.chat(
@@ -47,12 +51,50 @@ class OllamaLLM(BaseLLM):
                 **api_kwargs
             )
             
-            # Ollama response structure:
-            # {'model': 'llama3', 'created_at': '...', 'message': {'role': 'assistant', 'content': '...'}, 'done': True, 'total_duration': ..., 'load_duration': ..., 'prompt_eval_count': 12, 'eval_count': 34}
-            
+            # Update usage
             if "eval_count" in response and "prompt_eval_count" in response:
                 self._last_usage["total"] = response.get("prompt_eval_count", 0) + response.get("eval_count", 0)
-            
+
+            # Check for tool calls
+            if response['message'].get('tool_calls'):
+                # Add the assistant's message (with tool calls) to history
+                ollama_messages.append(response['message'])
+                
+                # Execute tools
+                for tool_call in response['message']['tool_calls']:
+                    function_name = tool_call['function']['name']
+                    arguments = tool_call['function']['arguments']
+                    
+                    if function_name in tool_map:
+                        function_to_call = tool_map[function_name]
+                        try:
+                            # Call the function
+                            result = function_to_call(**arguments)
+                        except Exception as e:
+                            result = f"Error executing tool: {e}"
+                        
+                        # Add result to history
+                        ollama_messages.append({
+                            'role': 'tool',
+                            'content': str(result),
+                        })
+                    else:
+                         ollama_messages.append({
+                            'role': 'tool',
+                            'content': f"Error: Tool '{function_name}' not found.",
+                        })
+                
+                # Call LLM again with tool results
+                response = self.client.chat(
+                    model=self.model_name,
+                    messages=ollama_messages,
+                    **api_kwargs
+                )
+                
+                # Update usage (accumulate)
+                if "eval_count" in response:
+                     self._last_usage["total"] += response.get("prompt_eval_count", 0) + response.get("eval_count", 0)
+
             return response['message']['content']
 
         except Exception as e:
