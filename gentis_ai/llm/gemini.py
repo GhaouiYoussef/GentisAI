@@ -1,4 +1,4 @@
-from typing import List, Any, Dict, Optional
+from typing import List, Any, Dict, Optional, Union, Generator
 from ..types import Message
 from .base import BaseLLM
 from ..utils import Colors
@@ -22,7 +22,7 @@ class GeminiLLM(BaseLLM):
         self.model_name = model_name
         self._last_usage = {"total": 0}
 
-    def generate(self, messages: List[Message], system_prompt: str = None, tools: List[Any] = None, **kwargs) -> str:
+    def generate(self, messages: List[Message], system_prompt: str = None, tools: List[Any] = None, stream: bool = False, **kwargs) -> Union[str, Generator[str, None, None]]:
         genai_history = []
         
         # Handle System Prompt
@@ -79,6 +79,18 @@ class GeminiLLM(BaseLLM):
                 config=tool_config
             )
             
+            if stream and not tools:
+                response_stream = chat.send_message_stream(last_message_content)
+                def generator():
+                    full_text = ""
+                    for chunk in response_stream:
+                        text = chunk.text
+                        full_text += text
+                        yield text
+                    if response_stream.usage_metadata:
+                         self._last_usage["total"] = response_stream.usage_metadata.total_token_count
+                return generator()
+
             response = chat.send_message(last_message_content)
             
             if response.usage_metadata:

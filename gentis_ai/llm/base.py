@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional, Any, Dict
+from typing import List, Optional, Any, Dict, Generator, Union
 from ..types import Message
 
 class BaseLLM(ABC):
@@ -8,7 +8,7 @@ class BaseLLM(ABC):
     """
     
     @abstractmethod
-    def generate(self, messages: List[Message], system_prompt: str = None, tools: List[Any] = None, **kwargs) -> str:
+    def generate(self, messages: List[Message], system_prompt: str = None, tools: List[Any] = None, stream: bool = False, **kwargs) -> Union[str, Generator[str, None, None]]:
         """
         Generates a response from the LLM.
         
@@ -16,10 +16,11 @@ class BaseLLM(ABC):
             messages: The conversation history.
             system_prompt: Optional system instruction.
             tools: Optional list of tools/functions.
+            stream: Whether to stream the response.
             **kwargs: Additional model-specific parameters (e.g., temperature).
             
         Returns:
-            The string response content.
+            The string response content, or a generator if stream=True.
         """
         pass
 

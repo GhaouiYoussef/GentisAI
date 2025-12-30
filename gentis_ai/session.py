@@ -1,6 +1,7 @@
 import os
 import json
 import datetime
+import concurrent.futures
 from typing import Dict, List, Any, Optional
 from .types import Expert, Message, TurnResponse
 from .router import Router
@@ -10,11 +11,12 @@ from .llm.mock import MockLLM
 from .utils import Colors
 
 class Flow:
-    def __init__(self, router: Router, llm: BaseLLM, debug: bool = False, optimize: bool = False):
+    def __init__(self, router: Router, llm: BaseLLM, debug: bool = False, optimize: bool = False, parallel_execution: bool = False):
         self.router = router
         self.llm = llm
         self.debug = debug
         self.optimize = optimize
+        self.parallel_execution = parallel_execution
         self._mock_notice_shown = False
             
         # In-memory storage for demo purposes. 
@@ -59,7 +61,7 @@ class Flow:
         except Exception as e:
             print(f"Debug Log Error: {e}")
 
-    def process_turn(self, message: str, user_id: Optional[str] = None) -> TurnResponse:
+    def process_turn(self, message: str, user_id: Optional[str] = None, stream: bool = False) -> TurnResponse:
         session = self._get_session(user_id)
         current_expert_name = session["current_expert"]
         history = session["history"]
@@ -67,52 +69,145 @@ class Flow:
         # 1. Classify / Route
         # Extract simple text history for the router
         text_history = [f"{m.role}: {m.content}" for m in history[-5:]]
-        next_expert_name = self.router.classify(message, current_expert_name, text_history)
+        next_experts_names = self.router.classify(message, current_expert_name, text_history)
         
-        switched = next_expert_name != current_expert_name
-        if switched:
-
-            print(f"{Colors.CYAN}--------Switched context from {current_expert_name} to {next_expert_name}------{Colors.ENDC}")
-            # Prune history to remove old system prompts
-            history = PNNet.sanitize_for_switch(history)
-            session["current_expert"] = next_expert_name
-            current_expert_name = next_expert_name
-
-        current_expert = self.router.get_expert(current_expert_name)
-
-        # 2. Prepare Context for LLM
-        # We construct the messages list for the LLM
-        
-        # Note: In a real chat session, we might not want to append system prompt to history list permanently
-        # but send it as part of the request.
-        
-        # 2.5 Debug Logging
-        # We log the history before appending the new message for debugging state
-        self._log_debug_memory(user_id, current_expert_name, history)
-
-        # 3. Generate Response
-        response_text = "Error: LLM not initialized."
+        response_text = ""
         token_usage = {"total": 0}
+        switched = False
         
-        try:
-            # Prepare messages for generation: History + New Message
-            # We don't modify the persistent history yet
-            messages_for_llm = history.copy()
-            messages_for_llm.append(Message(role="user", content=message))
+        # --- Hybrid Routing Logic ---
+        if len(next_experts_names) > 1:
+            print(f"{Colors.CYAN}--------Hybrid Routing: Consulting {next_experts_names}------{Colors.ENDC}")
             
-            response_text = self.llm.generate(
-                messages=messages_for_llm,
-                system_prompt=current_expert.system_prompt,
-                tools=current_expert.tools
-            )
+            expert_responses = []
             
-            token_usage = self.llm.get_token_usage()
+            if self.parallel_execution:
+                print(f"{Colors.BLUE}--- Executing in Parallel ---{Colors.ENDC}")
+                
+                def query_expert(name):
+                    expert = self.router.get_expert(name)
+                    msgs = history.copy()
+                    msgs.append(Message(role="user", content=message))
+                    try:
+                        # No streaming for sub-tasks
+                        resp = self.llm.generate(messages=msgs, system_prompt=expert.system_prompt, tools=expert.tools, stream=False)
+                        return f"[{name}]: {resp}"
+                    except Exception as e:
+                        return f"[{name}]: Error - {e}"
 
-        except Exception as e:
-            print(f"{Colors.RED}Error generating response: {e}{Colors.ENDC}")
-            if "API_KEY_INVALID" in str(e) or "API key not valid" in str(e):
-                print(f"{Colors.YELLOW}API key is required. Provide it directly or set GOOGLE_API_KEY in the environment. \nIf you don't have one, create one for free at https://aistudio.google.com/api-keys/{Colors.ENDC}")
-            response_text = "I encountered a system error. Please check the console logs."
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    results = executor.map(query_expert, next_experts_names)
+                    expert_responses = list(results)
+            else:
+                # 1. Collect responses from all experts (Sequential)
+                for name in next_experts_names:
+                    expert = self.router.get_expert(name)
+                    # Prepare messages for this expert
+                    msgs = history.copy()
+                    msgs.append(Message(role="user", content=message))
+                    
+                    try:
+                        # No streaming for sub-tasks, we need the full text to synthesize
+                        resp = self.llm.generate(messages=msgs, system_prompt=expert.system_prompt, tools=expert.tools, stream=False)
+                        expert_responses.append(f"[{name}]: {resp}")
+                    except Exception as e:
+                        expert_responses.append(f"[{name}]: Error - {e}")
+            
+            # 2. Synthesize
+            synthesis_input = f"User Query: {message}\n\nExpert Opinions:\n" + "\n\n".join(expert_responses) + "\n\nSynthesize a helpful answer based on these opinions."
+            
+            # Use default expert (Orchestrator) for synthesis
+            synthesizer = self.router.default_expert
+            
+            # Switch context to synthesizer if needed
+            if current_expert_name != synthesizer.name:
+                switched = True
+                session["current_expert"] = synthesizer.name
+                current_expert_name = synthesizer.name
+            
+            try:
+                # We pass the synthesis task to the LLM
+                synth_msgs = [Message(role="user", content=synthesis_input)]
+                
+                response_content = self.llm.generate(
+                    messages=synth_msgs,
+                    system_prompt=synthesizer.system_prompt,
+                    stream=stream
+                )
+                
+                if stream and hasattr(response_content, '__iter__') and not isinstance(response_content, str):
+                    full_text = ""
+                    for chunk in response_content:
+                        print(chunk, end="", flush=True)
+                        full_text += chunk
+                    print()
+                    response_text = full_text
+                else:
+                    response_text = response_content
+                    
+                token_usage = self.llm.get_token_usage()
+                    
+            except Exception as e:
+                print(f"{Colors.RED}Synthesis Error: {e}{Colors.ENDC}")
+                response_text = f"Error during synthesis: {e}"
+
+        else:
+            # --- Single Expert Logic ---
+            next_expert_name = next_experts_names[0]
+            switched = next_expert_name != current_expert_name
+            if switched:
+
+                print(f"{Colors.CYAN}--------Switched context from {current_expert_name} to {next_expert_name}------{Colors.ENDC}")
+                # Prune history to remove old system prompts
+                history = PNNet.sanitize_for_switch(history)
+                session["current_expert"] = next_expert_name
+                current_expert_name = next_expert_name
+
+            current_expert = self.router.get_expert(current_expert_name)
+
+            # 2. Prepare Context for LLM
+            # We construct the messages list for the LLM
+            
+            # Note: In a real chat session, we might not want to append system prompt to history list permanently
+            # but send it as part of the request.
+            
+            # 2.5 Debug Logging
+            # We log the history before appending the new message for debugging state
+            self._log_debug_memory(user_id, current_expert_name, history)
+
+            # 3. Generate Response
+            try:
+                # Prepare messages for generation: History + New Message
+                # We don't modify the persistent history yet
+                messages_for_llm = history.copy()
+                messages_for_llm.append(Message(role="user", content=message))
+                
+                response_content = self.llm.generate(
+                    messages=messages_for_llm,
+                    system_prompt=current_expert.system_prompt,
+                    tools=current_expert.tools,
+                    stream=stream
+                )
+                
+                if stream and hasattr(response_content, '__iter__') and not isinstance(response_content, str):
+                    # If streaming, we consume the generator and print chunks to stdout immediately
+                    # This gives the visual effect of streaming in the console.
+                    full_text = ""
+                    for chunk in response_content:
+                        print(chunk, end="", flush=True) # <--- Print chunk immediately
+                        full_text += chunk
+                    print() # Newline at the end
+                    response_text = full_text
+                else:
+                    response_text = response_content
+                
+                token_usage = self.llm.get_token_usage()
+
+            except Exception as e:
+                print(f"{Colors.RED}Error generating response: {e}{Colors.ENDC}")
+                if "API_KEY_INVALID" in str(e) or "API key not valid" in str(e):
+                    print(f"{Colors.YELLOW}API key is required. Provide it directly or set GOOGLE_API_KEY in the environment. \nIf you don't have one, create one for free at https://aistudio.google.com/api-keys/{Colors.ENDC}")
+                response_text = "I encountered a system error. Please check the console logs."
 
         # 4. Update History
         # We append the user message and the assistant response to our internal history

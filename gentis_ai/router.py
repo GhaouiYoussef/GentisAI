@@ -26,9 +26,10 @@ class Router:
             if default_expert.name not in self.experts:
                 self.experts[default_expert.name] = default_expert
 
-    def classify(self, user_message: str, current_expert_name: str, recent_history: List[str] = None) -> str:
+    def classify(self, user_message: str, current_expert_name: str, recent_history: List[str] = None) -> List[str]:
         """
-        Determines the best expert to handle the user message.
+        Determines the best expert(s) to handle the user message.
+        Returns a list of expert names.
         """
         # Construct the classification prompt
         experts_desc = "\n".join([f"- '{name}': {expert.description}" for name, expert in self.experts.items()])
@@ -47,14 +48,16 @@ class Router:
         Available Experts:
         {experts_desc}
         
-        Task: Determine if the user's intent requires switching to a different expert.
+        Task: Determine if the user's intent requires switching to a different expert, or multiple experts.
         
         Rules:
         1. If the user's request matches the Current Expert's domain, keep it.
         2. If the user explicitly asks for a topic covered by another expert, switch.
-        3. If unsure, or for general chit-chat, default to '{self.default_expert.name}'.
+        3. If the user's request involves topics from multiple experts (e.g. history AND math, or coding AND math), YOU MUST list them all (comma-separated).
+        4. If unsure, or for general chit-chat, default to '{self.default_expert.name}'.
         
-        Output ONLY the expert name.
+        Output ONLY the expert name(s), separated by commas if multiple.
+        Example: "history, math" or "coding, math"
         """
 
         try:
@@ -62,21 +65,36 @@ class Router:
             messages = [Message(role="user", content=prompt)]
             
             response_text = self.llm.generate(messages=messages)
-            predicted_expert = response_text.strip().lower()
+            
+            # Handle generator if streaming is enabled by default (though classify shouldn't stream)
+            if hasattr(response_text, '__iter__') and not isinstance(response_text, str):
+                full_text = ""
+                for chunk in response_text:
+                    full_text += chunk
+                response_text = full_text
+
+            raw_experts = response_text.strip().split(',')
+            valid_experts = []
             
             # Validate
-            # We do a loose match or exact match
-            for name in self.experts.keys():
-                if name.lower() == predicted_expert:
-                    return name
+            for raw_name in raw_experts:
+                clean_name = raw_name.strip().lower()
+                # We do a loose match or exact match
+                for name in self.experts.keys():
+                    if name.lower() == clean_name:
+                        valid_experts.append(name)
+                        break
             
-            return current_expert_name
+            if not valid_experts:
+                return [current_expert_name]
+                
+            return valid_experts
             
         except Exception as e:
             # The LLM class handles printing the specific error (e.g. API key issues)
             # We just log a small warning here to indicate routing failed.
             print(f"{Colors.YELLOW}Router warning: Failed to classify intent. Staying with {current_expert_name}.{Colors.ENDC}")
-            return current_expert_name
+            return [current_expert_name]
 
     def get_expert(self, name: str) -> Expert:
         return self.experts.get(name, self.default_expert)
