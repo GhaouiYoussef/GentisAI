@@ -2,9 +2,9 @@
 
 <div align="center">
     <picture>
-      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/GhaouiYoussef/GentisAI/main/.github/images/GentisAI-B-banner-r.svg">
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/GhaouiYoussef/GentisAI/main/.github/images/GentisAI-B-banner-r.svg">
-      <img alt="GentisAI-B-banner-r" src="https://raw.githubusercontent.com/GhaouiYoussef/GentisAI/main/.github/images/GentisAI-B-banner-r.svg" width="80%">
+      <source media="(prefers-color-scheme: light)" srcset="assets/images/GentisAI-B-banner-r.svg">
+      <source media="(prefers-color-scheme: dark)" srcset="assets/images/GentisAI-B-banner-r.svg">
+      <img alt="GentisAI-B-banner-r" src="assets/images/GentisAI-B-banner-r.svg" width="80%">
     </picture>
 </div>
 
