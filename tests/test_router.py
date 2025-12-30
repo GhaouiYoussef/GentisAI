@@ -22,16 +22,16 @@ class TestRouter(unittest.TestCase):
 
     def test_classify_sales(self):
         expert = self.router.classify("I want to buy something", "orchestrator")
-        self.assertEqual(expert, "sales")
+        self.assertEqual(expert, ["sales"])
 
     def test_classify_support(self):
         expert = self.router.classify("I need help", "orchestrator")
-        self.assertEqual(expert, "support")
+        self.assertEqual(expert, ["support"])
 
     def test_classify_no_change(self):
         # MockLLM returns "orchestrator" if no rule matches (default behavior in my mock setup)
         expert = self.router.classify("random text", "orchestrator")
-        self.assertEqual(expert, "orchestrator")
+        self.assertEqual(expert, ["orchestrator"])
 
 if __name__ == '__main__':
     unittest.main()
