@@ -1,0 +1,45 @@
+site_name: GentisAI
+site_description: A lightweight framework for multi-persona AI agent routing and state management.
+site_author: Ghaoui Youssef
+repo_url: https://github.com/GhaouiYoussef/GentisAI
+repo_name: GhaouiYoussef/GentisAI
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: black
+      accent: light green
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: black
+      accent: light green
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Features:
+    - Streaming: features/streaming.md
+    - Hybrid Routing: features/hybrid-routing.md
+    - Parallel Execution: features/parallel-execution.md
+  - API Reference: api-reference.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - attr_list

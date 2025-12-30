@@ -4,9 +4,10 @@ from .llm.base import BaseLLM
 from .utils import Colors
 
 class Router:
-    def __init__(self, experts: List[Expert], llm: BaseLLM, default_expert: Optional[Expert] = None):
+    def __init__(self, experts: List[Expert], llm: BaseLLM, default_expert: Optional[Expert] = None, enable_hybrid: bool = True):
         self.experts = {e.name: e for e in experts}
         self.llm = llm
+        self.enable_hybrid = enable_hybrid
         
         # 1. Orchestrator Default Mitigation
         # If no default expert is provided, we create a generic "Orchestrator"
@@ -38,6 +39,15 @@ class Router:
         if recent_history:
             history_text = "\nRecent Context:\n" + "\n".join([f"- {msg}" for msg in recent_history[-5:]])
 
+        if self.enable_hybrid:
+            task_instruction = "Task: Determine if the user's intent requires switching to a different expert, or multiple experts."
+            rule_3 = "3. If the user's request involves topics from multiple experts (e.g. history AND math, or coding AND math), YOU MUST list them all (comma-separated)."
+            output_instruction = 'Output ONLY the expert name(s), separated by commas if multiple.\n        Example: "history, math" or "coding, math"'
+        else:
+            task_instruction = "Task: Determine the SINGLE best expert to handle the user message."
+            rule_3 = "3. Select the one expert that best matches the user's intent."
+            output_instruction = "Output ONLY the single expert name."
+
         prompt = f"""
         You are an Intent Router.
         
@@ -48,16 +58,15 @@ class Router:
         Available Experts:
         {experts_desc}
         
-        Task: Determine if the user's intent requires switching to a different expert, or multiple experts.
+        {task_instruction}
         
         Rules:
         1. If the user's request matches the Current Expert's domain, keep it.
         2. If the user explicitly asks for a topic covered by another expert, switch.
-        3. If the user's request involves topics from multiple experts (e.g. history AND math, or coding AND math), YOU MUST list them all (comma-separated).
+        {rule_3}
         4. If unsure, or for general chit-chat, default to '{self.default_expert.name}'.
         
-        Output ONLY the expert name(s), separated by commas if multiple.
-        Example: "history, math" or "coding, math"
+        {output_instruction}
         """
 
         try:
