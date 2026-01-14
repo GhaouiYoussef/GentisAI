@@ -92,7 +92,7 @@ GentisAI was compared against a leading framework in a **real 3-turn conversatio
 > CrewAI generates **~15,000 extra "manager" tokens** per session to decide which expert should answer.
 > GentisAI routes instantly—no wasted reasoning loops.
 
-** **You can find the outputs and code of each framework in** `benchmarks/` **folder.**
+** **You can reproduce this benchmark by checking the** `benchmarks/` **folder.**
 
 ---
 
