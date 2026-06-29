@@ -51,3 +51,30 @@ response = flow.process_turn("I want to buy a laptop", user_id="user1")
 print(f"Agent: {response.agent_name}")
 print(f"Response: {response.content}")
 ```
+
+## Cloud Provider Adapters
+
+The same `Router` and `Flow` setup works with hosted providers:
+
+```python
+from gentis_ai.llm import AzureOpenAILLM, BedrockLLM, OpenAICompatibleLLM
+
+azure_llm = AzureOpenAILLM(
+    model_name="my-azure-deployment",
+    azure_endpoint="https://my-resource.openai.azure.com",
+    api_key="...",
+)
+
+aws_llm = BedrockLLM(
+    model_name="us.amazon.nova-lite-v1:0",
+    region_name="us-east-1",
+)
+
+compatible_llm = OpenAICompatibleLLM(
+    model_name="gpt-4o-mini",
+    api_key="...",
+    base_url="https://api.openai.com/v1",
+)
+```
+
+See `examples/cloud_providers_example.py` for a complete provider-switching example.

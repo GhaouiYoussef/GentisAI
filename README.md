@@ -186,8 +186,6 @@ flowchart TD
     class LLM llmStyle;
 ```
 
----
-
 # 📦 Installation
 
 ```bash
@@ -249,6 +247,37 @@ llm = GeminiLLM(
 
 # Everything else stays the same
 ```
+
+Azure OpenAI, AWS Bedrock, vLLM, and other OpenAI-compatible endpoints use the same `BaseLLM` contract:
+
+```python
+from gentis_ai.llm import AzureOpenAILLM, BedrockLLM, OpenAICompatibleLLM
+
+azure_llm = AzureOpenAILLM(
+    model_name="my-azure-deployment",
+    azure_endpoint="https://my-resource.openai.azure.com",
+    api_key="...",
+)
+
+aws_llm = BedrockLLM(
+    model_name="us.amazon.nova-lite-v1:0",
+    region_name="us-east-1",
+)
+
+compatible_llm = OpenAICompatibleLLM(
+    model_name="gpt-4o-mini",
+    api_key="...",
+    base_url="https://api.openai.com/v1",
+)
+```
+
+Useful environment variables:
+
+* Azure: `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_DEPLOYMENT`
+* AWS Bedrock: `AWS_BEDROCK_MODEL_ID`, `AWS_REGION` or `AWS_DEFAULT_REGION`
+* OpenAI-compatible: `OPENAI_API_KEY`, `OPENAI_BASE_URL`, `OPENAI_MODEL`
+
+See `examples/cloud_providers_example.py` for a provider-switching example.
 
 ---
 

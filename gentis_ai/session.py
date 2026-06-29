@@ -230,15 +230,11 @@ class Flow:
              adv_url = "https://github.com/GhaouiYoussef/AghenticMinds/blob/master/examples/advanced_example.py"
              simp_url = "https://github.com/GhaouiYoussef/AghenticMinds/blob/master/examples/simple_example.py"
 
-             print(f"\n{Colors.GREEN}┌────────────────────────────────────────────────────────────────────────┐")
-             print(f"│  🚀 NOTE: This was a simulation using MockLLM (no API key required).   │")
-             print(f"│  To see the real AI workflow with Gemini, try running:                 │")
-             print(f"│                                                                        │")
-             # Padding calculated for inner width of 72 chars
-             print(f"│  python examples/advanced_example.py ({link('Link', adv_url)})" + " " * 28 + "│")
-             print("│  OR                                                                    │")
-             print(f"│  python examples/simple_example.py ({link('Link', simp_url)})" + " " * 30 + "│")
-             print(f"└────────────────────────────────────────────────────────────────────────┘{Colors.ENDC}")
+             print(f"\n{Colors.GREEN}NOTE: This was a simulation using MockLLM (no API key required).")
+             print("To see the real AI workflow with Gemini, try running:")
+             print(f"python examples/advanced_example.py ({link('Link', adv_url)})")
+             print("OR")
+             print(f"python examples/simple_example.py ({link('Link', simp_url)}){Colors.ENDC}")
              self._mock_notice_shown = True
 
         return TurnResponse(
