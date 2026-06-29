@@ -1,4 +1,4 @@
-from .base import BaseLLM
+from .base import BaseLLM, ProviderCapabilities, ProviderResponse
 from .azure import AzureOpenAILLM
 from .bedrock import BedrockLLM
 from .gemini import GeminiLLM
@@ -9,6 +9,8 @@ from .mock import MockLLM
 
 __all__ = [
     "BaseLLM",
+    "ProviderCapabilities",
+    "ProviderResponse",
     "AzureOpenAILLM",
     "BedrockLLM",
     "GeminiLLM",

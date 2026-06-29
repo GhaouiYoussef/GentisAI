@@ -1,7 +1,6 @@
 from typing import List, Any, Dict, Optional, Union, Generator
 from ..types import Message
-from .base import BaseLLM
-import os
+from .base import BaseLLM, ProviderCapabilities
 
 try:
     import ollama
@@ -9,6 +8,13 @@ except ImportError:
     ollama = None
 
 class OllamaLLM(BaseLLM):
+    capabilities = ProviderCapabilities(
+        supports_streaming=True,
+        supports_tools=True,
+        supports_structured_output=False,
+        supports_token_counting=False,
+    )
+
     def __init__(self, model_name: str = "llama3", host: Optional[str] = None, **kwargs):
         """
         Initialize the Ollama LLM.
@@ -20,7 +26,10 @@ class OllamaLLM(BaseLLM):
             **kwargs: Additional arguments to pass to the client or store (e.g. temperature).
         """
         if not ollama:
-            raise ImportError("ollama package is required for OllamaLLM. Install it with `pip install ollama`.")
+            raise ImportError(
+                "ollama is required for OllamaLLM. Install with "
+                "`pip install gentis-ai[ollama]`."
+            )
         
         self.model_name = model_name.strip()
         self.client = ollama.Client(host=host) if host else ollama.Client()

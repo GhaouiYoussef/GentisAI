@@ -2,79 +2,79 @@
 
 ## Installation
 
-GentisAI requires Python 3.11+.
+GentisAI supports Python 3.10+.
 
 ```bash
 pip install gentis-ai
 ```
 
-Or install from source:
+The minimal install includes only core routing, sessions, tools, and `pydantic`.
 
-```bash
-git clone https://github.com/GhaouiYoussef/GentisAI.git
-cd GentisAI
-pip install -e .
-```
-
-## Basic Usage
-
-Here is a simple example of how to set up a router with two experts.
+## Offline Quickstart
 
 ```python
-from gentis_ai.session import Flow
-from gentis_ai.router import Router
-from gentis_ai.types import Expert
-from gentis_ai.llm.ollama import OllamaLLM
+from gentis_ai import Expert, Flow, Router
+from gentis_ai.llm import MockLLM
 
-# 1. Setup LLM
-llm = OllamaLLM(model_name="llama3")
-
-# 2. Define Experts
-sales_expert = Expert(
-    name="sales",
-    description="Handles product inquiries and sales.",
-    system_prompt="You are a sales assistant. Be persuasive and helpful."
+llm = MockLLM(
+    routing_rules={"help": "support", "buy": "sales"},
+    responses={
+        "help": "I can help troubleshoot that.",
+        "buy": "I can help with pricing.",
+    },
 )
 
-support_expert = Expert(
-    name="support",
-    description="Handles technical issues and bugs.",
-    system_prompt="You are a technical support engineer. Be patient and precise."
-)
+support = Expert(name="support", description="Handles technical support.")
+sales = Expert(name="sales", description="Handles sales and pricing.")
 
-# 3. Initialize Router and Flow
-router = Router(experts=[sales_expert, support_expert], llm=llm)
+router = Router(experts=[support, sales], llm=llm)
 flow = Flow(router=router, llm=llm)
 
-# 4. Chat Loop
-response = flow.process_turn("I want to buy a laptop", user_id="user1")
-print(f"Agent: {response.agent_name}")
-print(f"Response: {response.content}")
+response = flow.process_turn("I need help with login.", session_id="user-1")
+print(response.agent_name)
+print(response.content)
 ```
 
-## Cloud Provider Adapters
+## Cloud Providers
 
-The same `Router` and `Flow` setup works with hosted providers:
+Install the extra for the provider you want.
+
+```bash
+pip install "gentis-ai[openai]"
+```
 
 ```python
-from gentis_ai.llm import AzureOpenAILLM, BedrockLLM, OpenAICompatibleLLM
+from gentis_ai.llm import OpenAICompatibleLLM
 
-azure_llm = AzureOpenAILLM(
-    model_name="my-azure-deployment",
-    azure_endpoint="https://my-resource.openai.azure.com",
-    api_key="...",
-)
-
-aws_llm = BedrockLLM(
-    model_name="us.amazon.nova-lite-v1:0",
-    region_name="us-east-1",
-)
-
-compatible_llm = OpenAICompatibleLLM(
+llm = OpenAICompatibleLLM(
     model_name="gpt-4o-mini",
     api_key="...",
     base_url="https://api.openai.com/v1",
 )
 ```
 
-See `examples/cloud_providers_example.py` for a complete provider-switching example.
+Other adapters:
+
+- `GeminiLLM`: `pip install "gentis-ai[gemini]"`
+- `AzureOpenAILLM`: `pip install "gentis-ai[azure]"`
+- `BedrockLLM`: `pip install "gentis-ai[bedrock]"`
+- `OllamaLLM`: `pip install "gentis-ai[ollama]"`
+- `VLLMLLM`: `pip install "gentis-ai[vllm]"`
+
+See `examples/cloud_providers_example.py`.
+
+## Sessions
+
+Always pass a `session_id` in production:
+
+```python
+flow.process_turn("hello", session_id="customer-123")
+```
+
+For durable local storage:
+
+```python
+from gentis_ai import SQLiteSessionStore
+
+flow = Flow(router=router, llm=llm, session_store=SQLiteSessionStore("gentis.db"))
+```

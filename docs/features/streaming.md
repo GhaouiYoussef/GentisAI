@@ -1,26 +1,29 @@
-# Streaming Support
+# Streaming
 
-The framework supports streaming responses from LLMs (Ollama and Gemini), allowing for real-time feedback in your applications.
-
-## Usage
-
-To enable streaming, pass `stream=True` to the `flow.process_turn()` method.
+GentisAI streams structured events. Core runtime does not print.
 
 ```python
-response = flow.process_turn(user_input, user_id=user_id, stream=True)
+for event in flow.stream_turn("Tell me a story", session_id="user-1"):
+    if event.type == "token":
+        print(event.content, end="", flush=True)
+    elif event.type == "final":
+        print()
 ```
 
-!!! note
-    Currently, enabling streaming will print the chunks directly to `stdout` as they arrive. This provides immediate visual feedback in CLI applications but does not yet return a generator object to the caller.
+Event types:
 
-## Example
+- `route_started`
+- `route_finished`
+- `expert_started`
+- `token`
+- `tool_call`
+- `tool_result`
+- `final`
+- `error`
+
+Async streaming:
 
 ```python
-# ... setup flow ...
-
-print("Agent is thinking...")
-response = flow.process_turn("Tell me a long story", user_id="user1", stream=True)
-
-# The story will be printed to the console character by character.
-# The final full response is available in response.content
+async for event in flow.astream_turn("Tell me a story", session_id="user-1"):
+    ...
 ```

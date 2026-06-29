@@ -64,7 +64,7 @@ def main():
             if user_input.lower() in ["exit", "quit"]:
                 break
             
-            response = flow.process_turn(user_input, user_id=user_id)
+            response = flow.process_turn(user_input, session_id=user_id)
             
             agent_color = Colors.BLUE
             if response.agent_name == "sales":

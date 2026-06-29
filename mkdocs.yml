@@ -32,6 +32,8 @@ nav:
     - Streaming: features/streaming.md
     - Hybrid Routing: features/hybrid-routing.md
     - Parallel Execution: features/parallel-execution.md
+    - Tools: features/tools.md
+    - LangGraph Bridge: features/langgraph-bridge.md
   - API Reference: api-reference.md
 
 markdown_extensions:

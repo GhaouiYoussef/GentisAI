@@ -1,7 +1,11 @@
 import os
 import time
 import sys
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv():
+        return False
 from gentis_ai.session import Flow
 from gentis_ai.router import Router
 from gentis_ai.types import Expert
@@ -48,7 +52,7 @@ def run_test():
     
     start_seq = time.time()
     print("Processing...")
-    flow_seq.process_turn(query, user_id="test_seq")
+    flow_seq.process_turn(query, session_id="test_seq")
     end_seq = time.time()
     time_seq = end_seq - start_seq
     print(f"Sequential Time: {time_seq:.2f}s")
@@ -60,7 +64,7 @@ def run_test():
     
     start_par = time.time()
     print("Processing...")
-    flow_par.process_turn(query, user_id="test_par")
+    flow_par.process_turn(query, session_id="test_par")
     end_par = time.time()
     time_par = end_par - start_par
     print(f"Parallel Time:   {time_par:.2f}s")

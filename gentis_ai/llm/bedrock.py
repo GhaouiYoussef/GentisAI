@@ -2,7 +2,7 @@ import os
 from typing import Any, Dict, Generator, List, Optional, Union
 
 from ..types import Message
-from .base import BaseLLM
+from .base import BaseLLM, ProviderCapabilities
 
 try:
     import boto3
@@ -27,7 +27,10 @@ class BedrockLLM(BaseLLM):
         **default_params: Any,
     ):
         if client is None and not boto3:
-            raise ImportError("boto3 package is required for BedrockLLM")
+            raise ImportError(
+                "boto3 is required for BedrockLLM. Install with "
+                "`pip install gentis-ai[bedrock]`."
+            )
 
         self.model_name = model_name or os.getenv("AWS_BEDROCK_MODEL_ID")
         if not self.model_name:
@@ -174,3 +177,9 @@ class BedrockLLM(BaseLLM):
             "completion_tokens": output_tokens,
             "total": total_tokens,
         }
+    capabilities = ProviderCapabilities(
+        supports_streaming=True,
+        supports_tools=True,
+        supports_structured_output=False,
+        supports_token_counting=True,
+    )

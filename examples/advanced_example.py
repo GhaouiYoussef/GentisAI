@@ -9,7 +9,12 @@ from gentis_ai.utils import Colors
 # Import pre-defined prompts for quick start
 from gentis_ai.prompts import QUICK_START_SALES, QUICK_START_SUPPORT, QUICK_START_ORCHESTRATOR
 
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv():
+        return False
+
 load_dotenv()
 
 def main():
@@ -68,7 +73,7 @@ def main():
             if user_input.lower() in ["exit", "quit"]:
                 break
             
-            response = flow.process_turn(user_input, user_id=user_id)
+            response = flow.process_turn(user_input, session_id=user_id)
             
             agent_color = Colors.BLUE
             if response.agent_name == "sales":

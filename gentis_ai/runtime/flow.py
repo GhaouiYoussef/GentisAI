@@ -1,0 +1,390 @@
+from __future__ import annotations
+
+import asyncio
+import datetime as dt
+import json
+import logging
+import uuid
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from typing import Any, Iterable
+
+from gentis_ai.core.events import FlowEvent
+from gentis_ai.core.types import Message, TurnResponse
+from gentis_ai.llm.base import BaseLLM
+from gentis_ai.memory import BaseSessionStore, InMemorySessionStore, PNNet, SessionState
+from gentis_ai.observability.callbacks import CallbackManager
+from gentis_ai.routing import Router, RoutingDecision
+
+logger = logging.getLogger(__name__)
+
+
+class Flow:
+    def __init__(
+        self,
+        router: Router,
+        llm: BaseLLM,
+        debug: bool = False,
+        optimize: bool = False,
+        parallel_execution: bool = False,
+        session_store: BaseSessionStore | None = None,
+        history_window: int = 20,
+        callbacks: CallbackManager | None = None,
+    ):
+        self.router = router
+        self.llm = llm
+        self.debug = debug
+        self.optimize = optimize
+        self.parallel_execution = parallel_execution
+        self.session_store = session_store or InMemorySessionStore()
+        self.history_window = history_window
+        self.callbacks = callbacks or CallbackManager()
+
+        if self.debug:
+            Path("debug-cache").mkdir(exist_ok=True)
+
+    def _get_session(self, user_id: str) -> dict[str, Any]:
+        state = self.session_store.get(user_id, self.router.default_expert.name)
+        return {
+            "history": state.history,
+            "current_expert": state.current_expert,
+        }
+
+    def process_turn(
+        self,
+        message: str,
+        user_id: str | None = None,
+        stream: bool = False,
+        session_id: str | None = None,
+    ) -> TurnResponse:
+        if stream:
+            final_response = None
+            for event in self.stream_turn(
+                message,
+                user_id=user_id,
+                session_id=session_id,
+            ):
+                if event.type == "final":
+                    final_response = event.data.get("response")
+            if isinstance(final_response, TurnResponse):
+                return final_response
+            return self._generic_error_response(self._resolve_session_id(session_id, user_id))
+
+        resolved_session_id = self._resolve_session_id(session_id, user_id)
+        state = self.session_store.get(
+            resolved_session_id,
+            self.router.default_expert.name,
+        )
+        decision = self._classify(message, state)
+        response = self._execute_decision(message, state, decision)
+        self.session_store.save(state)
+        return response
+
+    def stream_turn(
+        self,
+        message: str,
+        user_id: str | None = None,
+        session_id: str | None = None,
+    ) -> Iterable[FlowEvent]:
+        resolved_session_id = self._resolve_session_id(session_id, user_id)
+        state = self.session_store.get(
+            resolved_session_id,
+            self.router.default_expert.name,
+        )
+
+        yield from self._emit(
+            FlowEvent(type="route_started", data={"session_id": resolved_session_id})
+        )
+        decision = self._classify(message, state)
+        yield from self._emit(
+            FlowEvent(type="route_finished", data={"decision": decision.model_dump()})
+        )
+
+        if len(decision.experts) != 1:
+            response = self._execute_decision(message, state, decision)
+            self.session_store.save(state)
+            yield from self._emit(
+                FlowEvent(
+                    type="final",
+                    content=response.content,
+                    agent_name=response.agent_name,
+                    data={"response": response},
+                )
+            )
+            return
+
+        expert_name = decision.experts[0]
+        switched = expert_name != state.current_expert
+        if switched:
+            state.history = PNNet.sanitize_for_switch(state.history)
+            state.current_expert = expert_name
+
+        expert = self.router.get_expert(state.current_expert)
+        yield from self._emit(
+            FlowEvent(type="expert_started", agent_name=expert.name)
+        )
+
+        response_text = ""
+        try:
+            messages = state.history.copy()
+            messages.append(Message(role="user", content=message))
+            raw = self.llm.generate(
+                messages=messages,
+                system_prompt=expert.system_prompt,
+                tools=expert.tools,
+                stream=True,
+            )
+            if isinstance(raw, str):
+                response_text = raw
+                yield from self._emit(
+                    FlowEvent(type="token", content=response_text, agent_name=expert.name)
+                )
+            else:
+                for chunk in raw:
+                    text = str(chunk)
+                    response_text += text
+                    yield from self._emit(
+                        FlowEvent(type="token", content=text, agent_name=expert.name)
+                    )
+        except Exception:
+            logger.exception("LLM generation failed")
+            response_text = self._safe_error_text()
+            yield from self._emit(
+                FlowEvent(type="error", error="LLM generation failed", agent_name=expert.name)
+            )
+
+        self._update_history(state, message, response_text, expert.name)
+        token_usage = self.llm.get_token_usage()
+        self.session_store.save(state)
+        response = TurnResponse(
+            content=response_text,
+            agent_name=expert.name,
+            switched_context=switched,
+            token_usage=token_usage,
+            session_id=resolved_session_id,
+            structured={"routing": decision.model_dump()},
+        )
+        yield from self._emit(
+            FlowEvent(
+                type="final",
+                content=response.content,
+                agent_name=response.agent_name,
+                data={"response": response},
+            )
+        )
+
+    async def aprocess_turn(
+        self,
+        message: str,
+        user_id: str | None = None,
+        stream: bool = False,
+        session_id: str | None = None,
+    ) -> TurnResponse:
+        return await asyncio.to_thread(
+            self.process_turn,
+            message,
+            user_id,
+            stream,
+            session_id,
+        )
+
+    async def astream_turn(
+        self,
+        message: str,
+        user_id: str | None = None,
+        session_id: str | None = None,
+    ):
+        events = await asyncio.to_thread(
+            lambda: list(self.stream_turn(message, user_id=user_id, session_id=session_id))
+        )
+        for event in events:
+            yield event
+
+    def _classify(self, message: str, state: SessionState) -> RoutingDecision:
+        history = [f"{item.role}: {item.content}" for item in state.history[-5:]]
+        return self.router.classify(message, state.current_expert, history)
+
+    def _execute_decision(
+        self,
+        message: str,
+        state: SessionState,
+        decision: RoutingDecision,
+    ) -> TurnResponse:
+        current_expert_name = state.current_expert
+        if len(decision.experts) > 1:
+            response_text, agent_name = self._run_hybrid(message, state, decision.experts)
+            switched = agent_name != current_expert_name
+        else:
+            response_text, agent_name, switched = self._run_single(
+                message,
+                state,
+                decision.experts[0],
+            )
+
+        self._update_history(state, message, response_text, agent_name)
+        token_usage = self.llm.get_token_usage()
+        return TurnResponse(
+            content=response_text,
+            agent_name=agent_name,
+            switched_context=switched,
+            token_usage=token_usage,
+            session_id=state.session_id,
+            structured={"routing": decision.model_dump()},
+        )
+
+    def _run_single(
+        self,
+        message: str,
+        state: SessionState,
+        next_expert_name: str,
+    ) -> tuple[str, str, bool]:
+        switched = next_expert_name != state.current_expert
+        if switched:
+            state.history = PNNet.sanitize_for_switch(state.history)
+            state.current_expert = next_expert_name
+
+        expert = self.router.get_expert(state.current_expert)
+        self._log_debug_memory(state.session_id, expert.name, state.history)
+        self.callbacks.on_expert_started(expert.name)
+        try:
+            messages = state.history.copy()
+            messages.append(Message(role="user", content=message))
+            response_text = self._generate_text(
+                messages=messages,
+                system_prompt=expert.system_prompt,
+                tools=expert.tools,
+            )
+        except Exception:
+            logger.exception("LLM generation failed")
+            self.callbacks.on_error("LLM generation failed")
+            response_text = self._safe_error_text()
+        return response_text, expert.name, switched
+
+    def _run_hybrid(
+        self,
+        message: str,
+        state: SessionState,
+        expert_names: list[str],
+    ) -> tuple[str, str]:
+        def query_expert(name: str) -> str:
+            expert = self.router.get_expert(name)
+            messages = state.history.copy()
+            messages.append(Message(role="user", content=message))
+            try:
+                response = self._generate_text(
+                    messages=messages,
+                    system_prompt=expert.system_prompt,
+                    tools=expert.tools,
+                )
+                return f"[{name}]: {response}"
+            except Exception:
+                logger.exception("Hybrid expert failed: %s", name)
+                return f"[{name}]: The expert could not complete this part."
+
+        if self.parallel_execution:
+            with ThreadPoolExecutor(max_workers=len(expert_names)) as executor:
+                expert_responses = list(executor.map(query_expert, expert_names))
+        else:
+            expert_responses = [query_expert(name) for name in expert_names]
+
+        synthesizer = self.router.default_expert
+        state.current_expert = synthesizer.name
+        synthesis_input = (
+            f"User Query: {message}\n\nExpert Opinions:\n"
+            + "\n\n".join(expert_responses)
+            + "\n\nSynthesize a concise, helpful answer."
+        )
+        try:
+            response = self._generate_text(
+                messages=[Message(role="user", content=synthesis_input)],
+                system_prompt=synthesizer.system_prompt,
+            )
+        except Exception:
+            logger.exception("Synthesis failed")
+            response = self._safe_error_text()
+        return response, synthesizer.name
+
+    def _generate_text(
+        self,
+        messages: list[Message],
+        system_prompt: str | None,
+        tools: list[Any] | None = None,
+    ) -> str:
+        response = self.llm.generate(
+            messages=messages,
+            system_prompt=system_prompt,
+            tools=tools,
+            stream=False,
+        )
+        if isinstance(response, str):
+            return response
+        return "".join(str(chunk) for chunk in response)
+
+    def _update_history(
+        self,
+        state: SessionState,
+        user_message: str,
+        response_text: str,
+        expert_name: str,
+    ) -> None:
+        state.history.append(
+            Message(role="user", content=user_message, metadata={"expert": expert_name})
+        )
+        state.history.append(
+            Message(
+                role="assistant",
+                content=response_text,
+                metadata={"expert": expert_name},
+            )
+        )
+        state.history = PNNet.prune(state.history, max_turns=self.history_window)
+        if self.optimize:
+            state.history = PNNet.summarize_if_needed(state.history, self.llm)
+
+    def _resolve_session_id(
+        self,
+        session_id: str | None,
+        user_id: str | None,
+    ) -> str:
+        if session_id:
+            return session_id
+        if user_id:
+            return user_id
+        return f"anon-{uuid.uuid4().hex}"
+
+    def _log_debug_memory(
+        self,
+        session_id: str,
+        expert_name: str,
+        history: list[Message],
+    ) -> None:
+        if not self.debug:
+            return
+
+        payload = {
+            "last_updated": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "current_expert": expert_name,
+            "history": [message.model_dump() for message in history],
+        }
+        try:
+            Path("debug-cache", f"{session_id}_debug.json").write_text(
+                json.dumps(payload, indent=2),
+                encoding="utf-8",
+            )
+        except OSError:
+            logger.exception("Could not write debug memory")
+
+    def _emit(self, event: FlowEvent) -> Iterable[FlowEvent]:
+        self.callbacks.on_event(event)
+        yield event
+
+    def _safe_error_text(self) -> str:
+        return "I encountered a system error. Please try again later."
+
+    def _generic_error_response(self, session_id: str) -> TurnResponse:
+        return TurnResponse(
+            content=self._safe_error_text(),
+            agent_name=self.router.default_expert.name,
+            switched_context=False,
+            session_id=session_id,
+        )

@@ -50,10 +50,9 @@ def chat_loop():
             print(f"{Colors.BLUE}Agent is thinking... (Hybrid Routing enabled){Colors.ENDC}")
             start_time = time.time()
             
-            # We use stream=True to see the synthesis happening in real-time
-            response = flow.process_turn(user_input, user_id=user_id, stream=True)
+            response = flow.process_turn(user_input, session_id=user_id)
             end_time = time.time()
-            
+            print(f"Agent ({response.agent_name}): {response.content}")
             print(f"\n{Colors.CYAN}Time taken: {end_time - start_time:.2f}s | Agent: {response.agent_name}{Colors.ENDC}\n")
             
         except KeyboardInterrupt:

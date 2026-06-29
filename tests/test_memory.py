@@ -1,5 +1,7 @@
 import unittest
-from gentis_ai.memory import PNNet
+import tempfile
+
+from gentis_ai.memory import PNNet, SQLiteSessionStore
 from gentis_ai.types import Message
 
 class TestPNNet(unittest.TestCase):
@@ -25,6 +27,22 @@ class TestPNNet(unittest.TestCase):
         self.assertEqual(sanitized[0].content, "Hello")
         self.assertEqual(sanitized[1].content, "Hi there")
         self.assertEqual(sanitized[2].content, "Previous conversation summary: summary")
+
+    def test_sqlite_session_persists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = f"{tmp}/gentis.db"
+            store = SQLiteSessionStore(path)
+            state = store.get("user-a", "orchestrator")
+            state.current_expert = "support"
+            state.history.append(Message(role="user", content="hello"))
+            store.save(state)
+            store.close()
+
+            reopened = SQLiteSessionStore(path)
+            loaded = reopened.get("user-a", "orchestrator")
+            self.assertEqual(loaded.current_expert, "support")
+            self.assertEqual(loaded.history[0].content, "hello")
+            reopened.close()
 
 if __name__ == '__main__':
     unittest.main()

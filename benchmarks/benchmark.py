@@ -1,7 +1,11 @@
 import os
 import time
 import asyncio
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv():
+        return False
 from gentis_ai import Expert, Router, Flow
 from gentis_ai.llm import GeminiLLM
 from gentis_ai.types import Message
@@ -16,10 +20,11 @@ load_dotenv()
 # Configuration
 MODEL_NAME = "gemini-2.5-flash" # Using available model from list
 API_KEY = os.getenv("GOOGLE_API_KEY")
+RESULT_DIR = os.path.join(os.path.dirname(__file__), "chat_results")
 
 if not API_KEY:
     print("Error: GOOGLE_API_KEY not found in .env")
-    exit(1)
+    raise SystemExit(1)
 
 # Scenario: Sales & Support Switching
 TURNS = [
@@ -29,12 +34,13 @@ TURNS = [
 ]
 
 def log_to_file(filename, content):
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
     with open(filename, "a", encoding="utf-8") as f:
         f.write(content + "\n")
 
 # --- GentisAI Setup ---
 def run_gentis_ai():
-    filename = "comparison/gentis_ai_results.txt"
+    filename = os.path.join(RESULT_DIR, "gentis_ai_results.txt")
     if os.path.exists(filename): os.remove(filename)
     
     log_to_file(filename, "--- Starting GentisAI Benchmark ---")
@@ -124,7 +130,7 @@ def run_gentis_ai():
 
 # --- CrewAI Setup ---
 def run_crewai():
-    filename = "comparison/crewai_results.txt"
+    filename = os.path.join(RESULT_DIR, "crewai_results.txt")
     if os.path.exists(filename): os.remove(filename)
 
     log_to_file(filename, "--- Starting CrewAI Benchmark (Conversational Mode) ---")

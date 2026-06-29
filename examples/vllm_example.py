@@ -41,13 +41,13 @@ flow = Flow(router=router, llm=llm)
 # 5. Run Conversation
 print("--- Turn 1 ---")
 try:
-    response = flow.process_turn("I have a problem with my account.")
+    response = flow.process_turn("I have a problem with my account.", session_id="vllm-demo")
     print(f"Agent: {response.agent_name}")
     print(f"Response: {response.content}")
     print(f"Token Usage: {response.token_usage}")
 
     print("\n--- Turn 2 ---")
-    response = flow.process_turn("How much does the premium plan cost?")
+    response = flow.process_turn("How much does the premium plan cost?", session_id="vllm-demo")
     print(f"Agent: {response.agent_name}")
     print(f"Response: {response.content}")
     print(f"Token Usage: {response.token_usage}")

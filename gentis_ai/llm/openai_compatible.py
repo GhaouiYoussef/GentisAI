@@ -1,7 +1,7 @@
 from typing import Any, Dict, Generator, List, Optional, Union
 
 from ..types import Message
-from .base import BaseLLM
+from .base import BaseLLM, ProviderCapabilities
 
 try:
     from openai import OpenAI
@@ -27,10 +27,13 @@ class OpenAICompatibleLLM(BaseLLM):
         **default_params: Any,
     ):
         if client is None and not OpenAI:
-            raise ImportError("openai package is required for OpenAICompatibleLLM")
+            raise ImportError(
+                "openai is required for OpenAICompatibleLLM. Install with "
+                "`pip install gentis-ai[openai]`."
+            )
 
         self.model_name = model_name
-        self.default_params = default_params
+        self.default_params = default_params.copy()
         self._last_usage = {"total": 0}
 
         if client is not None:
@@ -42,6 +45,10 @@ class OpenAICompatibleLLM(BaseLLM):
             kwargs["api_key"] = api_key
         if base_url is not None:
             kwargs["base_url"] = base_url
+        if "timeout" in self.default_params:
+            kwargs.setdefault("timeout", self.default_params.pop("timeout"))
+        if "max_retries" in self.default_params:
+            kwargs.setdefault("max_retries", self.default_params.pop("max_retries"))
 
         self.client = OpenAI(**kwargs)
 
@@ -145,3 +152,9 @@ class OpenAICompatibleLLM(BaseLLM):
             "completion_tokens": completion_tokens,
             "total": total_tokens,
         }
+    capabilities = ProviderCapabilities(
+        supports_streaming=True,
+        supports_tools=True,
+        supports_structured_output=True,
+        supports_token_counting=False,
+    )
