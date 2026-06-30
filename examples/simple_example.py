@@ -1,3 +1,8 @@
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from gentis_ai import Expert, Flow, Router
 from gentis_ai.llm import MockLLM
 

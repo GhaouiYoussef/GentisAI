@@ -2,7 +2,7 @@ import sys
 import os
 
 # Add parent directory to path to import gentis_ai
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from gentis_ai.session import Flow
 from gentis_ai.router import Router
