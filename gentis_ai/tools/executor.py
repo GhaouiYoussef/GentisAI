@@ -51,15 +51,17 @@ class ToolExecutor:
         if spec.function is None:
             raise ToolExecutionError(f"Tool has no callable function: {name}")
 
-        with ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(spec.function, **arguments)
-            try:
-                return ToolResult(
-                    name=name,
-                    ok=True,
-                    output=future.result(timeout=self.timeout_seconds),
-                )
-            except TimeoutError:
-                return ToolResult(name=name, ok=False, error="Tool timed out.")
+        executor = ThreadPoolExecutor(max_workers=1)
+        future = executor.submit(spec.function, **arguments)
+        try:
+            output = future.result(timeout=self.timeout_seconds)
+            return ToolResult(name=name, ok=True, output=output)
+        except TimeoutError:
+            future.cancel()
+            return ToolResult(name=name, ok=False, error="Tool timed out.")
+        except Exception as exc:
+            return ToolResult(name=name, ok=False, error=str(exc))
+        finally:
+            executor.shutdown(wait=False, cancel_futures=True)
             except Exception as exc:
                 return ToolResult(name=name, ok=False, error=str(exc))
