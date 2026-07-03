@@ -86,7 +86,7 @@ def run_bench() -> None:
             {
                 "runs": len(samples),
                 "p50_ms": statistics.median(sorted_samples),
-                "p95_ms": sorted_samples[int(len(sorted_samples) * 0.95) - 1],
+                "p95_ms": sorted_samples[min(len(sorted_samples) - 1, int(len(sorted_samples) * 0.95))],
             }
         )
     )
