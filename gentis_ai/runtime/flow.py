@@ -194,11 +194,28 @@ class Flow:
         user_id: str | None = None,
         session_id: str | None = None,
     ):
-        events = await asyncio.to_thread(
-            lambda: list(self.stream_turn(message, user_id=user_id, session_id=session_id))
-        )
-        for event in events:
-            yield event
+        queue: asyncio.Queue[FlowEvent | None] = asyncio.Queue()
+        loop = asyncio.get_running_loop()
+
+        async def producer() -> None:
+            def iterate() -> None:
+                try:
+                    for event in self.stream_turn(message, user_id=user_id, session_id=session_id):
+                        asyncio.run_coroutine_threadsafe(queue.put(event), loop).result()
+                finally:
+                    asyncio.run_coroutine_threadsafe(queue.put(None), loop).result()
+
+            await asyncio.to_thread(iterate)
+
+        producer_task = asyncio.create_task(producer())
+        try:
+            while True:
+                event = await queue.get()
+                if event is None:
+                    break
+                yield event
+        finally:
+            await producer_task
 
     def _classify(self, message: str, state: SessionState) -> RoutingDecision:
         history = [f"{item.role}: {item.content}" for item in state.history[-5:]]
