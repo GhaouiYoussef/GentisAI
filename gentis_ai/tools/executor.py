@@ -63,5 +63,3 @@ class ToolExecutor:
             return ToolResult(name=name, ok=False, error=str(exc))
         finally:
             executor.shutdown(wait=False, cancel_futures=True)
-            except Exception as exc:
-                return ToolResult(name=name, ok=False, error=str(exc))
