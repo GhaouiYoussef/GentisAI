@@ -1,10 +1,9 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-import json
 from gentis_ai import Expert, Router, Flow
-from gentis_ai.llm import OllamaLLM, GeminiLLM
+from gentis_ai.llm import OllamaLLM
 
 # --- Define Tools ---
 

@@ -1,3 +1,8 @@
+import logging
+import os
+
+logger = logging.getLogger(__name__)
+
 # ANSI Color Codes
 class Colors:
     HEADER = '\033[95m'
@@ -10,10 +15,10 @@ class Colors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     GREY = '\033[90m'
-
 EMOJI_RANGE_REGEX = r"[\U0001F300-\U0001FAFF\U0001F000-\U0001F02F\u2600-\u27BF]"
 VARIATION_JOINERS_REGEX = r"[\uFE0F\u200D]"
-import os
+
+
 def load_prompt(filename):
     """Helper to load prompt content from the prompts directory."""
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -22,5 +27,5 @@ def load_prompt(filename):
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
-        print(f"Error: Could not find prompt file: {path}")
+        logger.error("Could not find prompt file: %s", path)
         return ""

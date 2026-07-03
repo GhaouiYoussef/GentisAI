@@ -1,41 +1,91 @@
 # API Reference
 
-## Core Classes
+## Core
 
-### `gentis_ai.session.Flow`
-
-The main entry point for managing a chat session.
+### `Expert`
 
 ```python
-class Flow:
-    def __init__(self, router: Router, llm: BaseLLM, debug: bool = False, optimize: bool = False, parallel_execution: bool = False):
-        ...
-
-    def process_turn(self, message: str, user_id: Optional[str] = None, stream: bool = False) -> TurnResponse:
-        ...
+Expert(
+    name="support",
+    description="Handles support requests.",
+    system_prompt=None,
+    tools=[],
+)
 ```
 
-### `gentis_ai.router.Router`
+`system_prompt` is optional. If omitted, GentisAI creates a simple prompt from the expert name and description.
 
-Handles intent classification and expert selection.
+### `Message`
+
+Internal roles are strictly typed:
+
+- `system`
+- `user`
+- `assistant`
+- `tool`
+
+Legacy `model` input is normalized to `assistant` for compatibility.
+
+### `Router`
 
 ```python
-class Router:
-    def __init__(self, experts: List[Expert], llm: BaseLLM, default_expert: Optional[Expert] = None, enable_hybrid: bool = True):
-        ...
-
-    def classify(self, user_message: str, current_expert_name: str, recent_history: List[str] = None) -> List[str]:
-        ...
+decision = router.classify("I need pricing help", "orchestrator")
+names = router.classify_names("I need pricing help", "orchestrator")
 ```
 
-### `gentis_ai.types.Expert`
-
-Defines a persona or domain expert.
+`classify()` returns `RoutingDecision`:
 
 ```python
-class Expert(BaseModel):
-    name: str
-    description: str
-    system_prompt: str
-    tools: Optional[List[Any]] = None
+class RoutingDecision:
+    experts: list[str]
+    mode: Literal["single", "hybrid", "fallback"]
+    confidence: float
+    reason: str
 ```
+
+### `Flow`
+
+```python
+response = flow.process_turn("hello", session_id="user-1")
+
+for event in flow.stream_turn("hello", session_id="user-1"):
+    ...
+
+response = await flow.aprocess_turn("hello", session_id="user-1")
+
+async for event in flow.astream_turn("hello", session_id="user-1"):
+    ...
+```
+
+## Memory
+
+```python
+from gentis_ai import InMemorySessionStore, SQLiteSessionStore
+
+memory = InMemorySessionStore(ttl_seconds=3600)
+sqlite = SQLiteSessionStore("gentis.db")
+```
+
+## Providers
+
+All adapters implement `BaseLLM.generate`, `BaseLLM.generate_response`, `BaseLLM.get_token_usage`, and `BaseLLM.count_tokens`.
+
+```python
+from gentis_ai.llm import ProviderResponse
+```
+
+`ProviderResponse` includes:
+
+- `text`
+- `usage`
+- `raw_response`
+- `tool_calls`
+- `finish_reason`
+
+## Tools
+
+```python
+from gentis_ai.tools import ToolExecutor, ToolRegistry, ToolSpec
+```
+
+`ToolSpec.from_function(fn)` builds a JSON schema from a Python function signature. `ToolExecutor` supports max calls, timeouts, safe error results, and approval policies.

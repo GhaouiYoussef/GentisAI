@@ -1,73 +1,55 @@
 # GentisAI
 
-<div align="center">
-    <picture>
-      <source media="(prefers-color-scheme: light)" srcset="assets/images/GentisAI-B-banner-r.svg">
-      <source media="(prefers-color-scheme: dark)" srcset="assets/images/GentisAI-B-banner-r.svg">
-      <img alt="GentisAI-B-banner-r" src="assets/images/GentisAI-B-banner-r.svg" width="80%">
-    </picture>
-</div>
+GentisAI is a lightweight package for multi-expert AI agent routing and state management.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/license-MIT-blue.svg" />
-  <img src="https://img.shields.io/badge/python-3.11%2B-blue" />
-  <img src="https://img.shields.io/badge/status-beta-orange" />
-</p>
+It keeps the core model small:
 
-<h3 align="center"><i>The lightweight framework for real-time AI agents.</i></h3>
+```text
+Expert + Router + Flow
+```
 
-<p align="center">
-  Build multi-expert systems with precise routing, zero overhead, and
-  <b>6× less token usage than major competitors</b>.
-</p>
+Use GentisAI alone for fast interactive POCs. Add provider extras only when you need a real LLM, and add the LangGraph extra only when you need durable graph workflows.
 
----
+## Why It Exists
 
-## Why GentisAI?
+Most agent frameworks are optimized for autonomous background work. GentisAI focuses on real-time chat paths where users expect quick, predictable handoffs between known domains.
 
-Traditional agent frameworks (LangChain, CrewAI, AutoGen…) are created for **complex, autonomous, long-running tasks**.
-They introduce:
+- Low orchestration overhead
+- No hidden manager loop
+- Structured routing decisions
+- Explicit session IDs
+- Offline MockLLM for tests and demos
+- Optional provider and LangGraph integrations
 
-* Heavy orchestration layers
-* Hidden “manager” reasoning loops
-* Massive prompts
-* Slow response times
-* High token usage
+## First Run
 
-**GentisAI is built for a different purpose:**
+```python
+from gentis_ai import Expert, Flow, Router
+from gentis_ai.llm import MockLLM
 
-👉 **Create fast, deterministic, conversational AI agents that feel real-time.**
+llm = MockLLM(
+    routing_rules={"help": "support"},
+    responses={"help": "I can help troubleshoot that."},
+)
 
----
+support = Expert(name="support", description="Handles support.")
+router = Router(experts=[support], llm=llm)
+flow = Flow(router=router, llm=llm)
 
-## 🔥 The Gentis Advantage
+print(flow.process_turn("help", session_id="docs").content)
+```
 
-### ⚡ **6× More Efficient**
+## Install
 
-Our architecture uses **~83% fewer tokens per turn** than CrewAI in benchmarks.
+```bash
+pip install gentis-ai
+```
 
-### 🎯 **Precise Expert Routing**
+Provider extras:
 
-A tiny, dedicated router sends each message to the correct expert
-— fast, deterministic, and with no “agent arguing with itself.”
-
-### 🪶 **Minimalist API**
-
-Experts are simple Python classes.
-Router is a single object.
-Flow is one line.
-
-### 🔍 **Fully Transparent**
-
-No black-box loops.
-You control the routing logic, prompts, and state.
-
-### 🛠️ **Production-Ready Structure**
-
-Clean separation of concerns:
-
-* Experts
-* Router
-* Flow
-* Memory
-* LLM Adapters
+```bash
+pip install "gentis-ai[gemini]"
+pip install "gentis-ai[openai]"
+pip install "gentis-ai[ollama]"
+pip install "gentis-ai[langgraph]"
+```

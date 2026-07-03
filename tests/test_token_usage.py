@@ -41,8 +41,5 @@ class TestTokenUsage(unittest.TestCase):
         self.assertIsNotNone(response.token_usage)
         self.assertIn("total", response.token_usage)
         self.assertGreater(response.token_usage["total"], 0)
-        
-        print(f"Token usage for turn: {response.token_usage}")
-
 if __name__ == '__main__':
     unittest.main()

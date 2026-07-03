@@ -1,7 +1,6 @@
 from typing import List, Any, Dict, Optional, Union, Generator
 from ..types import Message
-from .base import BaseLLM
-from ..utils import Colors
+from .base import BaseLLM, ProviderCapabilities
 import os
 try:
     from google import genai
@@ -11,9 +10,19 @@ except ImportError:
     types = None
 
 class GeminiLLM(BaseLLM):
+    capabilities = ProviderCapabilities(
+        supports_streaming=True,
+        supports_tools=True,
+        supports_structured_output=False,
+        supports_token_counting=True,
+    )
+
     def __init__(self, api_key: Optional[str] = None, model_name: str = "gemini-2.0-flash-lite"):
         if not genai:
-            raise ImportError("google-genai package is required for GeminiLLM")
+            raise ImportError(
+                "google-genai is required for GeminiLLM. Install with "
+                "`pip install gentis-ai[gemini]`."
+            )
         #  lets check if its already an env var 
         resolved_api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not resolved_api_key:
@@ -111,6 +120,5 @@ class GeminiLLM(BaseLLM):
                 contents=types.Content(parts=[types.Part(text=text)])
             )
             return resp.total_tokens
-        except Exception as e:
-            print(f"Token Count Error: {e}")
+        except Exception:
             return len(text) // 4 # Fallback

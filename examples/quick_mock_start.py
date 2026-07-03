@@ -1,10 +1,9 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from gentis_ai import Expert, Router, Flow
 from gentis_ai.llm import MockLLM
-from gentis_ai.utils import Colors
 
 # 1. Setup Mock LLM (No API Key needed for testing)
 # In a real app, use: from gentis_ai.llm import GeminiLLM
@@ -49,7 +48,7 @@ flow = Flow(router=router, llm=llm)
 print("--- Turn 1 ---")
 user_input = "I have a problem with my account."
 print(f"User: {user_input}")
-response = flow.process_turn(user_input)
+response = flow.process_turn(user_input, session_id="quick-start")
 print(f"Agent: {response.agent_name}")
 print(f"Response: {response.content}")
 print(f"Token Usage: {response.token_usage}")
@@ -57,7 +56,7 @@ print(f"Token Usage: {response.token_usage}")
 print("\n--- Turn 2 ---")
 user_input = "How much does the premium plan cost?"
 print(f"User: {user_input}")
-response = flow.process_turn(user_input)
+response = flow.process_turn(user_input, session_id="quick-start")
 print(f"Agent: {response.agent_name}")
 print(f"Response: {response.content}")
 print(f"Token Usage: {response.token_usage}")

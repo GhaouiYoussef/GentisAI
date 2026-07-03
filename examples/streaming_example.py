@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import time
 from gentis_ai import Expert, Router, Flow
@@ -56,25 +56,19 @@ def main():
             if user_input.lower() in ["exit", "quit"]:
                 break
             
-            # We enable streaming here
-            # Note: In the current implementation of process_turn, it consumes the stream internally
-            # to update history, so we won't see the character-by-character effect in the console 
-            # unless we modify process_turn to yield chunks or take a callback.
-            # However, this proves the API accepts the flag.
-            
             print(f"{Colors.BLUE}Agent is thinking... (Streaming enabled){Colors.ENDC}")
             start_time = time.time()
-            
-            # We print the agent name prefix first
-            # Note: We don't know the agent name until AFTER classification, which happens inside process_turn.
-            # So the streaming output will appear, and then we print the summary below.
-            
-            response = flow.process_turn(user_input, user_id=user_id, stream=True)
+            response = None
+            for event in flow.stream_turn(user_input, session_id=user_id):
+                if event.type == "token":
+                    print(event.content, end="", flush=True)
+                elif event.type == "final":
+                    response = event.data["response"]
+                    print()
             end_time = time.time()
-            
-            # Since we printed the stream directly to stdout in process_turn, 
-            # we don't need to print response.content again here.
-            
+
+            if response is None:
+                continue
             print(f"\n{Colors.CYAN}Time taken: {end_time - start_time:.2f}s | Agent: {response.agent_name}{Colors.ENDC}\n")
             
         except KeyboardInterrupt:

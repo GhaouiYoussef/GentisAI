@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from gentis_ai import Expert, Router, Flow
 from gentis_ai.llm import OllamaLLM
@@ -37,13 +37,13 @@ flow = Flow(router=router, llm=llm)
 # 5. Run Conversation
 print("--- Turn 1 ---")
 try:
-    response = flow.process_turn("I have a problem with my account.")
+    response = flow.process_turn("I have a problem with my account.", session_id="ollama-demo")
     print(f"Agent: {response.agent_name}")
     print(f"Response: {response.content}")
     print(f"Token Usage: {response.token_usage}")
 
     print("\n--- Turn 2 ---")
-    response = flow.process_turn("How much does the premium plan cost?")
+    response = flow.process_turn("How much does the premium plan cost?", session_id="ollama-demo")
     print(f"Agent: {response.agent_name}")
     print(f"Response: {response.content}")
     print(f"Token Usage: {response.token_usage}")

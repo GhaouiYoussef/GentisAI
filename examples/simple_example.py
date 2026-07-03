@@ -1,43 +1,40 @@
 import os
-from gentis_ai import Expert, Router, Flow
-from gentis_ai.llm import GeminiLLM
+import sys
 
-# 1. Setup LLM
-# Ensure GOOGLE_API_KEY is set in your environment
-# os.environ["GOOGLE_API_KEY"] = "YOUR_API_KEY" 
-llm = GeminiLLM(model_name="gemini-2.0-flash", api_key=os.getenv("GOOGLE_API_KEY", ""))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# 2. Define Experts
+from gentis_ai import Expert, Flow, Router
+from gentis_ai.llm import MockLLM
+
+llm = MockLLM(
+    routing_rules={"problem": "support", "cost": "sales"},
+    responses={
+        "problem": "I can help troubleshoot that.",
+        "cost": "The premium plan starts at $29/month.",
+    },
+)
+
 support_expert = Expert(
     name="support",
     description="Handles technical support queries.",
-    system_prompt="You are a technical support specialist. Help users with their issues."
 )
 
 sales_expert = Expert(
     name="sales",
     description="Handles sales inquiries and pricing.",
-    system_prompt="You are a sales representative. Answer questions about pricing and features."
 )
 
-# 3. Setup Router
-router = Router(
-    experts=[support_expert, sales_expert],
-    llm=llm
-)
+router = Router(experts=[support_expert, sales_expert], llm=llm)
+flow = Flow(router=router, llm=llm)
 
-# 4. Create Flow
-flow = Flow(router=router, llm=llm) 
-
-# 5. Run Conversation
 print("--- Turn 1 ---")
-response = flow.process_turn("I have a problem with my account.")
+response = flow.process_turn("I have a problem with my account.", session_id="simple")
 print(f"Agent: {response.agent_name}")
 print(f"Response: {response.content}")
 print(f"Token Usage: {response.token_usage}")
 
 print("\n--- Turn 2 ---")
-response = flow.process_turn("How much does the premium plan cost?")
+response = flow.process_turn("How much does the premium plan cost?", session_id="simple")
 print(f"Agent: {response.agent_name}")
 print(f"Response: {response.content}")
 print(f"Token Usage: {response.token_usage}")
