@@ -1,0 +1,6 @@
+{
+  "enabled": false,
+  "provider": null,
+  "prompt": "orchestrator/prompt.md",
+  "config": "orchestrator/orchestrator.json"
+}

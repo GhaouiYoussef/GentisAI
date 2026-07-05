@@ -1,0 +1,14 @@
+{
+  "name": "support",
+  "description": "Example agent for technical support and troubleshooting.",
+  "prompt": "agents/support/prompt.md",
+  "tools_module": "agents.support.tools",
+  "keywords": [
+    "help",
+    "issue",
+    "bug",
+    "login"
+  ],
+  "enabled": true,
+  "example": true
+}

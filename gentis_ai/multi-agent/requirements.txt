@@ -1,0 +1,1 @@
+gentis-ai[openai]

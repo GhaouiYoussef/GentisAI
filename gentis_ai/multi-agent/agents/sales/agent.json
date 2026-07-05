@@ -1,0 +1,14 @@
+{
+  "name": "sales",
+  "description": "Example agent for pricing and buying questions.",
+  "prompt": "agents/sales/prompt.md",
+  "tools_module": "agents.sales.tools",
+  "keywords": [
+    "price",
+    "pricing",
+    "buy",
+    "plan"
+  ],
+  "enabled": true,
+  "example": true
+}

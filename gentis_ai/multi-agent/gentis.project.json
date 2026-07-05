@@ -1,0 +1,35 @@
+{
+  "schema_version": "0.2",
+  "name": "multi-agent",
+  "default_provider": "azure",
+  "routing": {
+    "mode": "fast_router",
+    "first_encounter": "fast_router",
+    "fast_router": {
+      "enabled": true,
+      "type": "keyword",
+      "provider": null,
+      "config": "routing/fast_router.json"
+    },
+    "orchestrator": {
+      "enabled": false,
+      "provider": null,
+      "prompt": "orchestrator/prompt.md",
+      "config": "orchestrator/orchestrator.json"
+    }
+  },
+  "agents": [
+    {
+      "name": "support",
+      "path": "agents/support",
+      "enabled": true,
+      "example": true
+    },
+    {
+      "name": "sales",
+      "path": "agents/sales",
+      "enabled": true,
+      "example": true
+    }
+  ]
+}

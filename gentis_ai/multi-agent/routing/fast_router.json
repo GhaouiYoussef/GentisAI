@@ -1,0 +1,12 @@
+{
+  "rules": {
+    "help": "support",
+    "issue": "support",
+    "bug": "support",
+    "login": "support",
+    "price": "sales",
+    "pricing": "sales",
+    "buy": "sales",
+    "plan": "sales"
+  }
+}

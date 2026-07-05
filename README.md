@@ -186,10 +186,17 @@ graph = to_langgraph(flow)
 
 ```bash
 gentis new support-agent
+gentis new support-agent --azure
+gentis new support-agent --google
+gentis agent add billing --project support-agent
 gentis run
 gentis eval
 gentis bench
 ```
+
+`gentis new` now scaffolds a multi-agent project system with a project manifest, provider-specific wiring, editable expert prompts, optional tool placeholders, and an optional fast router scaffold. `gentis agent add` adds a new expert to an existing project and rewrites the router rules so the fast router stays in sync.
+
+The starter includes support and sales prompt examples so users can see the shape of each expert prompt immediately.
 
 ## Documentation And Examples
 
