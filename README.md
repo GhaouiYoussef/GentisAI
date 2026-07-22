@@ -207,6 +207,16 @@ pip install -e ".[dev]"
 python -m pytest
 ```
 
+## Launch Demos
+
+- `demos/customer_rescue` shows explicit hybrid routing, fictional tool execution, streaming, and session follow-ups.
+- `demos/launch_war_room` shows contextual product-expert routing and parallel synthesis.
+
+```bash
+python -m streamlit run demos/customer_rescue/app.py
+python -m streamlit run demos/launch_war_room/app.py
+```
+
 ## License
 
 MIT. See `LICENSE`.

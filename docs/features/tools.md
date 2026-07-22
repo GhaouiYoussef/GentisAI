@@ -21,4 +21,10 @@ executor = ToolExecutor(
 result = executor.execute("get_weather", {"city": "Paris"})
 ```
 
+For route-owned execution, configure `Flow` with a paired `ToolExecutor` and
+`ToolPolicy`. The policy receives the user message and validated
+`RoutingDecision`, then returns typed `ToolCall` values. GentisAI emits
+`tool_call` and `tool_result` events before expert generation. This is an
+explicit application policy, not an autonomous provider tool loop.
+
 Tool errors return safe `ToolResult` objects. Unknown tools and max-call violations raise `ToolExecutionError`.
