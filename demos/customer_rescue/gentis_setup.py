@@ -44,13 +44,20 @@ def rescue_tool_policy(message, decision):
     selected = set(decision.experts)
     calls = []
     if "billing" in selected:
-        calls.append(ToolCall(name="check_invoice", arguments={"invoice_ref": "INV-2048"}))
+        calls.append(
+            ToolCall(name="check_invoice", arguments={"invoice_ref": "INV-2048"})
+        )
     if "technical_support" in selected:
-        calls.append(ToolCall(name="create_support_ticket", arguments={
-            "account_ref": "ACCT-1042", "issue": "Application crash"
-        }))
+        calls.append(
+            ToolCall(
+                name="create_support_ticket",
+                arguments={"account_ref": "ACCT-1042", "issue": "Application crash"},
+            )
+        )
     if "account_security" in selected:
-        calls.append(ToolCall(name="lookup_account", arguments={"account_ref": "ACCT-1042"}))
+        calls.append(
+            ToolCall(name="lookup_account", arguments={"account_ref": "ACCT-1042"})
+        )
     return calls
 
 
@@ -59,9 +66,12 @@ def _build_llm(provider: str):
         return MockLLM(
             routing_rules={
                 "charged twice": ["billing", "technical_support", "customer_retention"],
-                "which invoice": "billing", "invoice": "billing",
-                "crash": "technical_support", "upgrade": "sales",
-                "suspicious": "account_security", "cancel": "customer_retention",
+                "which invoice": "billing",
+                "invoice": "billing",
+                "crash": "technical_support",
+                "upgrade": "sales",
+                "suspicious": "account_security",
+                "cancel": "customer_retention",
             },
             responses={
                 "charged twice": "We confirmed the duplicate-charge review, opened a crash ticket, and prepared a retention follow-up.",
@@ -78,20 +88,30 @@ def _build_llm(provider: str):
         raise RuntimeError("OPENAI_API_KEY is required when GENTIS_PROVIDER=openai")
     model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
     return OpenAICompatibleLLM(
-        api_key=api_key, base_url=os.getenv("OPENAI_BASE_URL") or None,
-        model_name=model, timeout=45.0, max_tokens=900,
+        api_key=api_key,
+        base_url=os.getenv("OPENAI_BASE_URL") or None,
+        model_name=model,
+        timeout=45.0,
+        max_tokens=900,
     ), model
 
 
 def build_flow(provider: str | None = None) -> tuple[Flow, str]:
     llm, label = _build_llm((provider or os.getenv("GENTIS_PROVIDER", "mock")).lower())
-    experts = {name: Expert(name=name, description=desc) for name, desc in EXPERT_DESCRIPTIONS.items()}
+    experts = {
+        name: Expert(name=name, description=desc)
+        for name, desc in EXPERT_DESCRIPTIONS.items()
+    }
     registry = ToolRegistry()
     for tool in (lookup_account, check_invoice, create_support_ticket):
         registry.register(tool)
-    router = Router(list(experts.values()), llm=llm, default_expert=experts["customer_rescue_lead"])
+    router = Router(
+        list(experts.values()), llm=llm, default_expert=experts["customer_rescue_lead"]
+    )
     return Flow(
-        router, llm, parallel_execution=True,
+        router,
+        llm,
+        parallel_execution=True,
         tool_executor=ToolExecutor(registry, max_tool_calls=3, timeout_seconds=2.0),
         tool_policy=rescue_tool_policy,
     ), label

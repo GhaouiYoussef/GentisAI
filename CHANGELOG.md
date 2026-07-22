@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1
+
+- Add typed, application-owned tool policies and real tool call/result events.
+- Stream hybrid synthesis while exposing selected expert activity.
+- Unify process and stream turn behavior with session-safe history updates.
+- Add Customer Rescue and Product Launch Streamlit demos with offline mock mode.
+- Add launch-video, social, setup, and verification material.
+
 ## 0.2.0
 
 - Make core install lightweight with provider extras.

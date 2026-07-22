@@ -8,9 +8,12 @@ from gentis_ai.llm import MockLLM, OpenAICompatibleLLM
 
 DEFAULT_BRIEF = "A lightweight Python framework that routes real-time requests to specialized AI experts without hidden manager loops."
 EXPERT_LABELS = {
-    "product_strategist": "Product Strategist", "growth_marketer": "Growth Marketer",
-    "technical_architect": "Technical Architect", "risk_analyst": "Risk Analyst",
-    "financial_analyst": "Financial Analyst", "copywriter": "Copywriter",
+    "product_strategist": "Product Strategist",
+    "growth_marketer": "Growth Marketer",
+    "technical_architect": "Technical Architect",
+    "risk_analyst": "Risk Analyst",
+    "financial_analyst": "Financial Analyst",
+    "copywriter": "Copywriter",
 }
 EXPERT_DESCRIPTIONS = {
     "product_strategist": "Owns positioning, user value, prioritization, and synthesis.",
@@ -45,18 +48,33 @@ MOCK_RESPONSES = {
 
 def _build_llm(provider: str):
     if provider == "mock":
-        return MockLLM(MOCK_RESPONSES, MOCK_ROUTES, "The product strategist can frame the next decision."), "MockLLM"
+        return MockLLM(
+            MOCK_RESPONSES,
+            MOCK_ROUTES,
+            "The product strategist can frame the next decision.",
+        ), "MockLLM"
     if provider != "openai":
         raise RuntimeError("GENTIS_PROVIDER must be 'mock' or 'openai'.")
     key = os.getenv("OPENAI_API_KEY")
     if not key:
         raise RuntimeError("OPENAI_API_KEY is required when GENTIS_PROVIDER=openai")
     model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-    return OpenAICompatibleLLM(api_key=key, base_url=os.getenv("OPENAI_BASE_URL") or None, model_name=model, timeout=45.0, max_tokens=900), model
+    return OpenAICompatibleLLM(
+        api_key=key,
+        base_url=os.getenv("OPENAI_BASE_URL") or None,
+        model_name=model,
+        timeout=45.0,
+        max_tokens=900,
+    ), model
 
 
 def build_flow(provider: str | None = None) -> tuple[Flow, str]:
     llm, label = _build_llm((provider or os.getenv("GENTIS_PROVIDER", "mock")).lower())
-    experts = {name: Expert(name=name, description=desc) for name, desc in EXPERT_DESCRIPTIONS.items()}
-    router = Router(list(experts.values()), llm=llm, default_expert=experts["product_strategist"])
+    experts = {
+        name: Expert(name=name, description=desc)
+        for name, desc in EXPERT_DESCRIPTIONS.items()
+    }
+    router = Router(
+        list(experts.values()), llm=llm, default_expert=experts["product_strategist"]
+    )
     return Flow(router, llm, parallel_execution=True), label
