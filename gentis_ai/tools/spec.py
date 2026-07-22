@@ -7,6 +7,11 @@ from typing import Any, get_origin
 from pydantic import BaseModel, Field
 
 
+class ToolCall(BaseModel):
+    name: str
+    arguments: dict[str, Any] = Field(default_factory=dict)
+
+
 class ToolSpec(BaseModel):
     name: str
     description: str = ""

@@ -1,7 +1,10 @@
 import time
 import unittest
 
+from gentis_ai import ToolCall as PublicToolCall
+from gentis_ai.routing import RoutingDecision
 from gentis_ai.tools import ToolExecutor, ToolRegistry, ToolSpec
+from gentis_ai.tools import ToolCall, ToolPolicy
 from gentis_ai.core.errors import ToolExecutionError
 
 
@@ -61,6 +64,31 @@ class TestTools(unittest.TestCase):
             approval_policy={"add": "always"},
         ).execute("add", {"a": 1, "b": 1})
         self.assertTrue(result.approval_required)
+
+
+class TestToolPolicyContract(unittest.TestCase):
+    def test_tool_call_defaults_to_empty_arguments(self):
+        call = ToolCall(name="lookup")
+        self.assertEqual(call.name, "lookup")
+        self.assertEqual(call.arguments, {})
+
+    def test_tool_call_is_exported_from_top_level_package(self):
+        self.assertIs(PublicToolCall, ToolCall)
+
+    def test_tool_policy_accepts_routing_decision(self):
+        def policy(message: str, decision: RoutingDecision) -> list[ToolCall]:
+            return [ToolCall(name=decision.experts[0], arguments={"q": message})]
+
+        typed_policy: ToolPolicy = policy
+        calls = typed_policy(
+            "hello",
+            RoutingDecision(
+                experts=["support"],
+                mode="single",
+                confidence=1.0,
+            ),
+        )
+        self.assertEqual(calls[0].name, "support")
 
 
 if __name__ == "__main__":
