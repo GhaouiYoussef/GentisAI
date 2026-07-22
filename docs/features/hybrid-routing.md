@@ -22,6 +22,10 @@ RoutingDecision(
 flow = Flow(router=router, llm=llm, parallel_execution=True)
 ```
 
+`stream_turn()` emits `expert_started` for each consulted expert and streams
+the default expert's final synthesis as `token` events. Intermediate expert
+responses remain internal to the synthesis step.
+
 To force one expert:
 
 ```python

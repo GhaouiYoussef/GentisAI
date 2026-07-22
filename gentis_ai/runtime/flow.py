@@ -117,9 +117,26 @@ class Flow:
         tool_data = [self._tool_result_data(result) for result in tool_results]
 
         if len(decision.experts) != 1:
-            response = self._execute_decision(message, state, decision)
-            response.structured["tools"] = tool_data
+            response_text, agent_name, switched = yield from self._stream_hybrid(
+                message,
+                state,
+                decision,
+                tool_results,
+            )
+            response_text = response_text.rstrip()
+            self._update_history(state, message, response_text, agent_name)
             self.session_store.save(state)
+            response = TurnResponse(
+                content=response_text,
+                agent_name=agent_name,
+                switched_context=switched,
+                token_usage=self.llm.get_token_usage(),
+                session_id=resolved_session_id,
+                structured={
+                    "routing": decision.model_dump(),
+                    "tools": tool_data,
+                },
+            )
             yield from self._emit(
                 FlowEvent(
                     type="final",
@@ -188,6 +205,89 @@ class Flow:
                 agent_name=response.agent_name,
                 data={"response": response},
             )
+        )
+
+    def _stream_hybrid(
+        self,
+        message: str,
+        state: SessionState,
+        decision: RoutingDecision,
+        tool_results: list[ToolResult],
+    ) -> Generator[FlowEvent, None, tuple[str, str, bool]]:
+        original_expert = state.current_expert
+        messages = self._turn_messages(state, message, tool_results)
+
+        for name in decision.experts:
+            self.callbacks.on_expert_started(name)
+            yield from self._emit(
+                FlowEvent(type="expert_started", agent_name=name)
+            )
+
+        def query_expert(name: str) -> str:
+            expert = self.router.get_expert(name)
+            try:
+                response = self._generate_text(
+                    messages=messages,
+                    system_prompt=expert.system_prompt,
+                    tools=expert.tools,
+                )
+                return f"[{name}]: {response}"
+            except Exception:
+                logger.exception("Hybrid expert failed: %s", name)
+                return f"[{name}]: The expert could not complete this part."
+
+        if self.parallel_execution:
+            with ThreadPoolExecutor(max_workers=len(decision.experts)) as executor:
+                opinions = list(executor.map(query_expert, decision.experts))
+        else:
+            opinions = [query_expert(name) for name in decision.experts]
+
+        synthesizer = self.router.default_expert
+        state.current_expert = synthesizer.name
+        if synthesizer.name not in decision.experts:
+            self.callbacks.on_expert_started(synthesizer.name)
+            yield from self._emit(
+                FlowEvent(type="expert_started", agent_name=synthesizer.name)
+            )
+
+        synthesis_input = (
+            f"User Query: {message}\n\nExpert Opinions:\n"
+            + "\n\n".join(opinions)
+            + "\n\nSynthesize a concise, helpful answer."
+        )
+        response_text = ""
+        try:
+            raw = self.llm.generate(
+                messages=[Message(role="user", content=synthesis_input)],
+                system_prompt=synthesizer.system_prompt,
+                stream=True,
+            )
+            chunks = [raw] if isinstance(raw, str) else raw
+            for chunk in chunks:
+                text = str(chunk)
+                response_text += text
+                yield from self._emit(
+                    FlowEvent(
+                        type="token",
+                        content=text,
+                        agent_name=synthesizer.name,
+                    )
+                )
+        except Exception:
+            logger.exception("Synthesis failed")
+            response_text = self._safe_error_text()
+            yield from self._emit(
+                FlowEvent(
+                    type="error",
+                    error="LLM generation failed",
+                    agent_name=synthesizer.name,
+                )
+            )
+
+        return (
+            response_text,
+            synthesizer.name,
+            synthesizer.name != original_expert,
         )
 
     def _stream_tools(
