@@ -65,4 +65,8 @@ include = ["gentis_ai*"]
 exclude = ["test_init_project*", "tests*"]
 
 [tool.setuptools.package-data]
-"gentis_ai" = ["prompts/**/*", "templates/**/*"]
+"gentis_ai" = [
+    "prompts/**/*",
+    "templates/**/*",
+    "templates/azure_support/*",
+]
