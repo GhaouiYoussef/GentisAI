@@ -19,6 +19,23 @@ class StaticLLM(BaseLLM):
         return len(text) // 4
 
 
+class CapturingLLM(StaticLLM):
+    def __init__(self, response):
+        super().__init__(response)
+        self.last_kwargs = {}
+
+    def generate(
+        self,
+        messages,
+        system_prompt=None,
+        tools=None,
+        stream=False,
+        **kwargs,
+    ):
+        self.last_kwargs = kwargs
+        return self.response
+
+
 class TestRouter(unittest.TestCase):
     def setUp(self):
         self.experts = [
@@ -91,6 +108,35 @@ class TestRouter(unittest.TestCase):
         router = Router(self.experts, llm=None, rules={"buy": "sales"})
         decision = router.classify("I want to buy", "orchestrator")
         self.assertEqual(decision.experts, ["sales"])
+
+    def test_default_routing_token_budget_is_preserved(self):
+        llm = CapturingLLM(
+            '{"experts":["support"],"mode":"single","confidence":0.9}'
+        )
+        router = Router(self.experts, llm)
+
+        router.classify("help", "orchestrator")
+
+        self.assertEqual(router.routing_max_tokens, 512)
+        self.assertEqual(llm.last_kwargs["max_tokens"], 512)
+
+    def test_custom_routing_token_budget_is_forwarded(self):
+        llm = CapturingLLM(
+            '{"experts":["support"],"mode":"single","confidence":0.9}'
+        )
+        router = Router(self.experts, llm, routing_max_tokens=96)
+
+        router.classify("help", "orchestrator")
+
+        self.assertEqual(router.routing_max_tokens, 96)
+        self.assertEqual(llm.last_kwargs["max_tokens"], 96)
+
+    def test_routing_token_budget_must_be_positive(self):
+        with self.assertRaisesRegex(
+            ValueError,
+            "routing_max_tokens must be at least 1",
+        ):
+            Router(self.experts, self.mock_llm, routing_max_tokens=0)
 
 if __name__ == '__main__':
     unittest.main()
