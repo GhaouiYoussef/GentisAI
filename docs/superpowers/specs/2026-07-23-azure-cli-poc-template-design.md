@@ -1,28 +1,28 @@
-# Azure CLI POC Template Design
+# Azure Customer Support CLI POC Template Design
 
 **Date:** 2026-07-23
 **Status:** Approved for implementation planning
 
 ## Objective
 
-Add a reusable Azure proof-of-concept template to the GentisAI CLI so a new user can install GentisAI, scaffold a working multi-expert application, and run it in a few commands:
+Add a reusable Azure customer-support proof-of-concept template to the GentisAI CLI so a new user can install GentisAI, scaffold a working three-agent application, and run it in a few commands:
 
 ```powershell
 pip install "gentis-ai[azure]"
-gentis new my-azure-poc --template azure
-cd my-azure-poc
+gentis new customer-support --template azure-support
+cd customer-support
 gentis run
 ```
 
-The generated application must use Azure OpenAI when it is fully configured. When Azure configuration is absent or incomplete, it must continue with a deterministic `MockLLM` and clearly tell the user that the local mock provider is active. It must never print secrets or environment values.
+The generated application must make GentisAI's core value obvious: a fast router reads each customer message, selects one of three focused support agents, and invokes only that agent. It uses Azure OpenAI when fully configured. When Azure configuration is absent or incomplete, it continues with a deterministic `MockLLM` and clearly tells the user that the local mock provider is active. It never prints secrets or environment values.
 
 ## Chosen Approach
 
-Extend `gentis new` with an optional `--template` argument and add an `azure` template. Keep the existing scaffold as the default so `gentis new NAME` remains backward compatible.
+Extend `gentis new` with an optional `--template` argument and add an `azure-support` template. Keep the existing scaffold as the default so `gentis new NAME` remains backward compatible.
 
 Make `gentis run` project-aware through an explicit generated `gentis.json` manifest. When the manifest identifies a local entry point, the CLI executes that application. When no manifest is present, it preserves the current built-in mock chat even if the directory happens to contain an unrelated `app.py`.
 
-This is preferred over a one-off `gentis demo azure` command because users receive a normal project they can inspect, edit, test, and present as their own POC. It is preferred over an interactive scaffold wizard because one copyable command is easier to teach and automate.
+This is preferred over a one-off `gentis demo azure` command because users receive a normal project they can inspect, edit, test, and present as their own POC. It is preferred over an interactive scaffold wizard because one copyable command is easier to teach and automate. A single-agent routing mode is preferred over hybrid fan-out because the example is intended to demonstrate low-overhead dispatch, not multi-agent synthesis.
 
 ## CLI Contract
 
@@ -31,17 +31,17 @@ This is preferred over a one-off `gentis demo azure` command because users recei
 The new command is:
 
 ```text
-gentis new NAME --template azure
+gentis new NAME --template azure-support
 ```
 
 `--template` accepts:
 
 - `basic`: the current generated project and the default when the option is omitted.
-- `azure`: the new Azure multi-expert POC.
+- `azure-support`: the new Azure customer-support POC.
 
-Unknown template names are rejected by `argparse` with a non-zero exit code and the supported choices. Project paths and names continue to use the existing CLI validation and creation behavior.
+Unknown template names are rejected by `argparse` with a non-zero exit code and the supported choices. Project paths and names continue to use the existing CLI creation behavior.
 
-After generating the Azure template, the CLI prints:
+After generating the Azure support template, the CLI prints:
 
 ```text
 Created <project-path>
@@ -56,7 +56,7 @@ The Azure template includes this project manifest:
 
 ```json
 {
-  "template": "azure",
+  "template": "azure-support",
   "entrypoint": "app.py"
 }
 ```
@@ -67,10 +67,10 @@ If the current directory has no `gentis.json`, `gentis run` starts the existing 
 
 ## Generated Project
 
-The Azure template creates:
+The Azure support template creates:
 
 ```text
-my-azure-poc/
+customer-support/
 |-- app.py
 |-- test_app.py
 |-- README.md
@@ -80,25 +80,38 @@ my-azure-poc/
 `-- Dockerfile
 ```
 
-### Application
+### Three-Agent Application
 
 `app.py` is a small interactive terminal POC built from public GentisAI APIs. It defines:
 
-- `cloud_architect`: architecture, reliability, scaling, and migration guidance.
-- `security_specialist`: identity, network security, secrets, and governance guidance.
-- `cost_optimizer`: Azure consumption, sizing, and cost-control guidance.
-- `azure_guide`: the default expert and hybrid-response synthesizer.
+- `technical_support`: application errors, bugs, outages, and troubleshooting.
+- `billing_support`: invoices, charges, refunds, subscriptions, and payments.
+- `account_support`: login, profile, access, and general account questions; this is also the routing fallback.
 
-The application uses `Router`, `Flow`, explicit expert descriptions, and a stable CLI session ID. It accepts repeated questions until the user enters `exit` or `quit`, demonstrating conversational memory without extra infrastructure.
+These are the only three experts registered with the router. The application uses `Router`, `Flow`, concise expert descriptions, and a stable CLI session ID. It accepts repeated questions until the user enters `exit` or `quit`, demonstrating conversational memory without extra infrastructure.
 
 Each turn consumes `Flow.stream_turn()` events. The terminal displays the selected route and expert activity, streams response tokens, and prints the final answer without duplicating it. Example prompts shown at startup cover:
 
-- a single architecture route;
-- a single security route;
-- a hybrid cost-and-reliability route;
+- a billing route: "I was charged twice this month.";
+- a technical route: "The dashboard crashes when I upload a file.";
+- an account route: "I cannot sign in to my account.";
 - a memory-dependent follow-up.
 
 The mock provider uses deterministic routing rules and responses so the generated tests and first-run experience need no network connection.
+
+### Fast Router
+
+The POC uses GentisAI's normal semantic `Router`; it does not add regex-based production routing or a manager-agent loop. Azure mode makes one compact structured classification request per customer turn, then invokes only the selected support agent.
+
+Append a backward-compatible `routing_max_tokens: int = 512` parameter to `Router.__init__()`. Values below one raise `ValueError` at construction. The Azure support template sets the limit to `96`, sets `enable_hybrid=False`, and uses `account_support` as the explicit default expert. Existing applications retain the current 512-token limit.
+
+The generated CLI measures elapsed time between actual `route_started` and `route_finished` events and prints:
+
+```text
+[route] billing_support selected in 184 ms
+```
+
+The number is always measured at runtime and is never hard-coded. The documentation describes this as routing latency, not total response latency, and makes no universal performance claim. Mock measurements are labeled as local mock results and are not presented as Azure benchmarks.
 
 ## Provider Selection
 
@@ -131,10 +144,11 @@ The generated `README.md` is the step-by-step POC guide. It includes:
 2. Running immediately with the local mock provider.
 3. Setting the three Azure environment categories in PowerShell and POSIX shells.
 4. Running the same `gentis run` command with Azure.
-5. Trying the included single-route, hybrid-route, and memory prompts.
+5. Trying the included billing, technical, account, and memory prompts.
 6. Running `python -m pytest`.
-7. Explaining the generated experts, routing, streaming events, and fallback behavior.
-8. Troubleshooting incomplete configuration, missing optional dependencies, invalid deployment names, and Azure request failures.
+7. Walking through the code in five short steps: select the provider, define three agents, create the fast router, create the flow, and stream a support turn.
+8. Explaining that Azure performs semantic routing while the offline mock uses deterministic fixtures only for a credential-free demo.
+9. Troubleshooting incomplete configuration, missing optional dependencies, invalid deployment names, and Azure request failures.
 
 `.env.example` documents variable names with empty values. The generated application reads process environment variables directly and does not parse `.env` files or add another runtime dependency.
 
@@ -158,7 +172,7 @@ CLI tests will use temporary directories and patched process state; they will no
 Coverage includes:
 
 - `gentis new NAME` still generates the basic template.
-- `gentis new NAME --template azure` generates every expected file.
+- `gentis new NAME --template azure-support` generates every expected file.
 - Generated Python files compile.
 - `gentis run` executes the entry point declared by a valid generated manifest.
 - Invalid or escaping manifest entry points fail safely.
@@ -167,7 +181,10 @@ Coverage includes:
 - Partial Azure configuration lists only missing category names.
 - Complete Azure configuration selects `AzureOpenAILLM` using a stub client.
 - Provider messages do not contain configured values.
-- The generated mock POC routes single and hybrid prompts and preserves a session follow-up.
+- The router keeps the existing 512-token default and accepts a validated custom routing limit.
+- The generated POC registers exactly three agents and disables hybrid routing.
+- The generated mock POC routes billing, technical, and account prompts and preserves a session follow-up.
+- Routing latency comes from observed route events rather than a fixed value.
 - The generated project test suite passes without Azure credentials or network access.
 
 The full repository test suite, lint checks for changed files, generated-project compilation, and a CLI smoke run are required before completion.
@@ -178,7 +195,9 @@ The full repository test suite, lint checks for changed files, generated-project
 - The first run succeeds without Azure credentials and explicitly identifies `MockLLM`.
 - Complete Azure configuration switches the same generated application to `AzureOpenAILLM`.
 - Missing configuration is reported by category without revealing values.
-- The terminal visibly demonstrates routing, expert activity, streamed output, and session memory.
+- The generated application contains exactly three customer-support agents.
+- Every turn selects one agent through a single compact routing call; no broadcast or hybrid synthesis occurs.
+- The terminal visibly demonstrates the selected agent, measured routing time, streamed output, and session memory.
 - The generated README is sufficient for a new user to reproduce both mock and Azure modes.
 - Existing CLI commands and the default scaffold remain backward compatible.
 - No secret, credential, or populated environment file is committed.
@@ -191,5 +210,5 @@ The full repository test suite, lint checks for changed files, generated-project
 - A general interactive template wizard.
 - A web interface, Streamlit application, or deployment automation.
 - Azure services other than Azure OpenAI.
-- Autonomous tool execution or external cloud-management actions.
+- Hybrid agent execution inside the generated POC, autonomous tools, or external customer-support integrations.
 - Publishing a new package version as part of this change.
