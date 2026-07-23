@@ -191,6 +191,21 @@ gentis eval
 gentis bench
 ```
 
+### Azure Customer Support POC
+
+Create a three-agent customer-support demo in four commands:
+
+```bash
+pip install "gentis-ai[azure]"
+gentis new customer-support --template azure-support
+cd customer-support
+gentis run
+```
+
+The POC routes each message to Technical, Billing, or Account Support. If the
+Azure API key, endpoint, and deployment are not all configured, it clearly
+announces the local mock fallback and still runs.
+
 ## Documentation And Examples
 
 - `docs/getting-started.md`

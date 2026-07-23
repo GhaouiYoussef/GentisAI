@@ -67,6 +67,13 @@ exclude = ["test_init_project*", "tests*"]
 [tool.setuptools.package-data]
 "gentis_ai" = [
     "prompts/**/*",
-    "templates/**/*",
-    "templates/azure_support/*",
+    "templates/Dockerfile",
+    "templates/support_bot.py",
+    "templates/azure_support/Dockerfile",
+    "templates/azure_support/README.md",
+    "templates/azure_support/app.py",
+    "templates/azure_support/env.example",
+    "templates/azure_support/gentis.json",
+    "templates/azure_support/requirements.txt",
+    "templates/azure_support/test_app.py",
 ]

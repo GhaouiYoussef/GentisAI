@@ -78,3 +78,47 @@ from gentis_ai import SQLiteSessionStore
 
 flow = Flow(router=router, llm=llm, session_store=SQLiteSessionStore("gentis.db"))
 ```
+
+## Azure Customer Support POC
+
+```bash
+pip install "gentis-ai[azure]"
+gentis new customer-support --template azure-support
+cd customer-support
+gentis run
+```
+
+The generated project contains three agents:
+
+- `technical_support` for errors, outages, uploads, and troubleshooting.
+- `billing_support` for invoices, charges, refunds, and payments.
+- `account_support` for login, access, profile, and fallback questions.
+
+The router performs one compact semantic classification with a 96-token output
+budget, hybrid routing disabled, and only the selected agent invoked. The CLI
+prints the actual time between `route_started` and `route_finished`; it does not
+claim a fixed latency.
+
+Run immediately without credentials to use the announced local mock. To use
+Azure OpenAI, set:
+
+```text
+AZURE_OPENAI_API_KEY
+AZURE_OPENAI_ENDPOINT or AZURE_OPENAI_BASE_URL
+AZURE_OPENAI_DEPLOYMENT or AZURE_OPENAI_MODEL
+```
+
+The deployment variable must identify an Azure deployment. The application
+never prints configured values and does not load `.env` files.
+
+Try these prompts:
+
+```text
+I was charged twice this month.
+The dashboard crashes when I upload a file.
+I cannot sign in to my account.
+Can you explain the next step?
+```
+
+The first three demonstrate each route. The final prompt demonstrates the
+stable CLI session.
