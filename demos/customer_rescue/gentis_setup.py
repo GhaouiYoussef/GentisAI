@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 
 from gentis_ai import Expert, Flow, Router, ToolCall
-from gentis_ai.llm import MockLLM, OpenAICompatibleLLM
+from gentis_ai.llm import MockLLM
 from gentis_ai.tools import ToolExecutor, ToolRegistry
 
+from demos.provider_config import ProviderFactory, build_cloud_llm
 from demos.customer_rescue.tools import (
     check_invoice,
     create_support_ticket,
@@ -61,7 +63,11 @@ def rescue_tool_policy(message, decision):
     return calls
 
 
-def _build_llm(provider: str):
+def _build_llm(
+    provider: str,
+    environment: Mapping[str, str] | None = None,
+    **provider_factories: ProviderFactory,
+):
     if provider == "mock":
         return MockLLM(
             routing_rules={
@@ -81,19 +87,11 @@ def _build_llm(provider: str):
             },
             default_response="The rescue lead can coordinate the next best action.",
         ), "MockLLM"
-    if provider != "openai":
-        raise RuntimeError("GENTIS_PROVIDER must be 'mock' or 'openai'.")
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is required when GENTIS_PROVIDER=openai")
-    model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-    return OpenAICompatibleLLM(
-        api_key=api_key,
-        base_url=os.getenv("OPENAI_BASE_URL") or None,
-        model_name=model,
-        timeout=45.0,
-        max_tokens=900,
-    ), model
+    return build_cloud_llm(
+        provider,
+        environment,
+        **provider_factories,
+    )
 
 
 def build_flow(provider: str | None = None) -> tuple[Flow, str]:

@@ -20,6 +20,21 @@ AZURE_FILES = {
     "gentis.json",
     "Dockerfile",
 }
+GEMINI_FILES = {
+    "app.py",
+    "test_gemini_app.py",
+    "README.md",
+    "requirements.txt",
+    ".env.example",
+    "gentis.json",
+    "Dockerfile",
+}
+
+
+class FakeGeminiLLM:
+    def __init__(self, *, api_key: str, model_name: str):
+        self.api_key = api_key
+        self.model_name = model_name
 
 
 def load_generated_app(path: Path) -> ModuleType:
@@ -32,7 +47,7 @@ def load_generated_app(path: Path) -> ModuleType:
 
 
 def test_template_choices_are_stable():
-    assert TEMPLATE_CHOICES == ("basic", "azure-support")
+    assert TEMPLATE_CHOICES == ("basic", "azure-support", "gemini-support")
 
 
 def test_basic_template_keeps_existing_files(tmp_path: Path):
@@ -65,6 +80,45 @@ def test_azure_support_template_generates_complete_project(tmp_path: Path):
         "test_app.py",
         "exec",
     )
+
+
+def test_gemini_support_template_generates_complete_project(tmp_path: Path):
+    root = create_project(
+        str(tmp_path / "customer-support-gemini"),
+        template="gemini-support",
+    )
+
+    assert {path.name for path in root.iterdir()} == GEMINI_FILES
+    assert '"template": "gemini-support"' in (
+        root / "gentis.json"
+    ).read_text(encoding="utf-8")
+    compile((root / "app.py").read_text(encoding="utf-8"), "app.py", "exec")
+    compile(
+        (root / "test_gemini_app.py").read_text(encoding="utf-8"),
+        "test_gemini_app.py",
+        "exec",
+    )
+
+
+
+def test_gemini_support_template_selects_configured_provider(tmp_path: Path):
+    root = create_project(
+        str(tmp_path / "customer-support-gemini"),
+        template="gemini-support",
+    )
+    app = load_generated_app(root / "app.py")
+    messages = []
+
+    llm, provider = app.build_llm(
+        {"GOOGLE_API_KEY": "test-secret"},
+        gemini_factory=FakeGeminiLLM,
+        output=messages.append,
+    )
+
+    assert isinstance(llm, FakeGeminiLLM)
+    assert llm.model_name == "gemini-2.5-flash"
+    assert provider == "Gemini (gemini-2.5-flash)"
+    assert "test-secret" not in "\n".join(messages)
 
 
 def test_missing_azure_config_uses_mock_and_names_missing_categories(

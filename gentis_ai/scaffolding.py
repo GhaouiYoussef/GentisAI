@@ -4,10 +4,19 @@ from importlib import resources
 from pathlib import Path
 
 
-TEMPLATE_CHOICES = ("basic", "azure-support")
+TEMPLATE_CHOICES = ("basic", "azure-support", "gemini-support")
 AZURE_SUPPORT_FILES = {
     "app.py": "app.py",
     "test_app.py": "test_app.py",
+    "README.md": "README.md",
+    "requirements.txt": "requirements.txt",
+    ".env.example": "env.example",
+    "gentis.json": "gentis.json",
+    "Dockerfile": "Dockerfile",
+}
+GEMINI_SUPPORT_FILES = {
+    "app.py": "app.py",
+    "test_gemini_app.py": "test_gemini_app.py",
     "README.md": "README.md",
     "requirements.txt": "requirements.txt",
     ".env.example": "env.example",
@@ -25,6 +34,8 @@ def create_project(name: str, template: str = "basic") -> Path:
     root.mkdir(parents=True, exist_ok=True)
     if template == "azure-support":
         _copy_azure_support(root)
+    elif template == "gemini-support":
+        _copy_gemini_support(root)
     else:
         _write_basic(root, name)
     return root
@@ -36,6 +47,16 @@ def _copy_azure_support(root: Path) -> None:
         "azure_support",
     )
     for output_name, source_name in AZURE_SUPPORT_FILES.items():
+        content = source_root.joinpath(source_name).read_text(encoding="utf-8")
+        (root / output_name).write_text(content, encoding="utf-8")
+
+
+def _copy_gemini_support(root: Path) -> None:
+    source_root = resources.files("gentis_ai").joinpath(
+        "templates",
+        "gemini_support",
+    )
+    for output_name, source_name in GEMINI_SUPPORT_FILES.items():
         content = source_root.joinpath(source_name).read_text(encoding="utf-8")
         (root / output_name).write_text(content, encoding="utf-8")
 

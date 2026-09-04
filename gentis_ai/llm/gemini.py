@@ -96,8 +96,11 @@ class GeminiLLM(BaseLLM):
                         text = chunk.text
                         full_text += text
                         yield text
-                    if response_stream.usage_metadata:
-                         self._last_usage["total"] = response_stream.usage_metadata.total_token_count
+                    # check if its valid argument to access usage_metadata
+                    if hasattr(response_stream, 'usage_metadata') and response_stream.usage_metadata:
+                        self._last_usage["total"] = response_stream.usage_metadata.total_token_count
+                        # if response_stream.usage_metadata:
+                        #     self._last_usage["total"] = response_stream.usage_metadata.total_token_count
                 return generator()
 
             response = chat.send_message(last_message_content)

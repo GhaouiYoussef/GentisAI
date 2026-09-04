@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Mapping
 
 from gentis_ai import Expert, Flow, Router
-from gentis_ai.llm import MockLLM, OpenAICompatibleLLM
+from gentis_ai.llm import MockLLM
+
+from demos.provider_config import ProviderFactory, build_cloud_llm
 
 
 DEFAULT_BRIEF = "A lightweight Python framework that routes real-time requests to specialized AI experts without hidden manager loops."
@@ -46,26 +49,22 @@ MOCK_RESPONSES = {
 }
 
 
-def _build_llm(provider: str):
+def _build_llm(
+    provider: str,
+    environment: Mapping[str, str] | None = None,
+    **provider_factories: ProviderFactory,
+):
     if provider == "mock":
         return MockLLM(
             MOCK_RESPONSES,
             MOCK_ROUTES,
             "The product strategist can frame the next decision.",
         ), "MockLLM"
-    if provider != "openai":
-        raise RuntimeError("GENTIS_PROVIDER must be 'mock' or 'openai'.")
-    key = os.getenv("OPENAI_API_KEY")
-    if not key:
-        raise RuntimeError("OPENAI_API_KEY is required when GENTIS_PROVIDER=openai")
-    model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
-    return OpenAICompatibleLLM(
-        api_key=key,
-        base_url=os.getenv("OPENAI_BASE_URL") or None,
-        model_name=model,
-        timeout=45.0,
-        max_tokens=900,
-    ), model
+    return build_cloud_llm(
+        provider,
+        environment,
+        **provider_factories,
+    )
 
 
 def build_flow(provider: str | None = None) -> tuple[Flow, str]:

@@ -32,9 +32,11 @@ def main() -> None:
     if args.command == "new":
         root = create_project(args.name, template=args.template)
         print(f"Created {root}")
-        if args.template == "azure-support":
+        if args.template in {"azure-support", "gemini-support"}:
             print("Next:")
             print(f"  cd {root}")
+            if args.template == "gemini-support":
+                print("  Set GOOGLE_API_KEY in this shell")
             print("  gentis run")
     elif args.command == "run":
         try:

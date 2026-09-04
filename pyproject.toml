@@ -76,4 +76,11 @@ exclude = ["test_init_project*", "tests*"]
     "templates/azure_support/gentis.json",
     "templates/azure_support/requirements.txt",
     "templates/azure_support/test_app.py",
+    "templates/gemini_support/Dockerfile",
+    "templates/gemini_support/README.md",
+    "templates/gemini_support/app.py",
+    "templates/gemini_support/env.example",
+    "templates/gemini_support/gentis.json",
+    "templates/gemini_support/requirements.txt",
+    "templates/gemini_support/test_gemini_app.py",
 ]

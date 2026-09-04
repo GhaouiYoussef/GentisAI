@@ -56,6 +56,16 @@ print(response.agent_name)
 print(response.content)
 ```
 
+Create a Gemini-backed customer-support project:
+
+```bash
+gentis new customer-support-gemini --template gemini-support
+cd customer-support-gemini
+gentis run
+```
+
+Set `GOOGLE_API_KEY` or `GEMINI_API_KEY` in the same shell before running it.
+
 ## Core Concepts
 
 - `Expert`: a persona with a name, description, optional system prompt, and optional tools.
@@ -226,6 +236,7 @@ python -m pytest
 
 - `demos/customer_rescue` shows explicit hybrid routing, fictional tool execution, streaming, and session follow-ups.
 - `demos/launch_war_room` shows contextual product-expert routing and parallel synthesis.
+- Both demos support `GENTIS_PROVIDER=mock|openai|gemini|azure`; mock remains the default.
 
 ```bash
 python -m streamlit run demos/customer_rescue/app.py

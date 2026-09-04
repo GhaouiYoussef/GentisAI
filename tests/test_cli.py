@@ -44,6 +44,30 @@ def test_new_azure_support_prints_next_steps(tmp_path: Path, capsys):
     assert "gentis run" in output
 
 
+def test_new_gemini_support_prints_next_steps(tmp_path: Path, capsys):
+    project = tmp_path / "customer-support-gemini"
+
+    with patch.object(
+        sys,
+        "argv",
+        [
+            "gentis",
+            "new",
+            str(project),
+            "--template",
+            "gemini-support",
+        ],
+    ):
+        main()
+
+    output = capsys.readouterr().out
+    assert (project / "gentis.json").is_file()
+    assert f"Created {project}" in output
+    assert f"cd {project}" in output
+    assert "GOOGLE_API_KEY" in output
+    assert "gentis run" in output
+
+
 def test_new_rejects_unknown_template(tmp_path: Path):
     with patch.object(
         sys,

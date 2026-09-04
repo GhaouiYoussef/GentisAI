@@ -1,0 +1,4 @@
+{
+  "template": "gemini-support",
+  "entrypoint": "app.py"
+}
