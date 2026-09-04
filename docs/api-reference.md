@@ -89,3 +89,8 @@ from gentis_ai.tools import ToolExecutor, ToolRegistry, ToolSpec
 ```
 
 `ToolSpec.from_function(fn)` builds a JSON schema from a Python function signature. `ToolExecutor` supports max calls, timeouts, safe error results, and approval policies.
+
+`ToolCall` represents one application-authorized invocation. A `ToolPolicy`
+maps the original message and validated route to calls. Pass both
+`tool_executor` and `tool_policy` to `Flow`; configuring only one raises a
+clear `ValueError`.

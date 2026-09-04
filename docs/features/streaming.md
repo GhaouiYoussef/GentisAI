@@ -27,3 +27,10 @@ Async streaming:
 async for event in flow.astream_turn("Tell me a story", session_id="user-1"):
     ...
 ```
+
+Single-expert routes stream that expert's response. Hybrid routes emit one
+`expert_started` event per consulted expert, run consultations, and then stream
+the default expert's synthesized answer. Consultation text remains internal.
+
+When an explicit tool policy is configured, `tool_call` and `tool_result`
+events occur after `route_finished` and before expert generation.

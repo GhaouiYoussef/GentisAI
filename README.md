@@ -56,6 +56,16 @@ print(response.agent_name)
 print(response.content)
 ```
 
+Create a Gemini-backed customer-support project:
+
+```bash
+gentis new customer-support-gemini --template gemini-support
+cd customer-support-gemini
+gentis run
+```
+
+Set `GOOGLE_API_KEY` or `GEMINI_API_KEY` in the same shell before running it.
+
 ## Core Concepts
 
 - `Expert`: a persona with a name, description, optional system prompt, and optional tools.
@@ -191,6 +201,21 @@ gentis eval
 gentis bench
 ```
 
+### Azure Customer Support POC
+
+Create a three-agent customer-support demo in four commands:
+
+```bash
+pip install "gentis-ai[azure]"
+gentis new customer-support --template azure-support
+cd customer-support
+gentis run
+```
+
+The POC routes each message to Technical, Billing, or Account Support. If the
+Azure API key, endpoint, and deployment are not all configured, it clearly
+announces the local mock fallback and still runs.
+
 ## Documentation And Examples
 
 - `docs/getting-started.md`
@@ -205,6 +230,17 @@ gentis bench
 ```bash
 pip install -e ".[dev]"
 python -m pytest
+```
+
+## Launch Demos
+
+- `demos/customer_rescue` shows explicit hybrid routing, fictional tool execution, streaming, and session follow-ups.
+- `demos/launch_war_room` shows contextual product-expert routing and parallel synthesis.
+- Both demos support `GENTIS_PROVIDER=mock|openai|gemini|azure`; mock remains the default.
+
+```bash
+python -m streamlit run demos/customer_rescue/app.py
+python -m streamlit run demos/launch_war_room/app.py
 ```
 
 ## License

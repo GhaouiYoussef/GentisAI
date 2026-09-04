@@ -24,12 +24,17 @@ class Router:
         routing_strategy: RoutingStrategy | None = None,
         confidence_threshold: float = 0.35,
         fallback_strategy: str = "current",
+        routing_max_tokens: int = 512,
     ):
+        if routing_max_tokens < 1:
+            raise ValueError("routing_max_tokens must be at least 1.")
+
         self.experts = {expert.name: expert for expert in experts}
         self.llm = llm
         self.enable_hybrid = enable_hybrid
         self.confidence_threshold = confidence_threshold
         self.fallback_strategy = fallback_strategy
+        self.routing_max_tokens = routing_max_tokens
 
         if default_expert is None:
             self.default_expert = self.experts.get(
@@ -85,7 +90,7 @@ class Router:
                         ),
                     )
                 ],
-                max_tokens=512,
+                max_tokens=self.routing_max_tokens,
             )
             if hasattr(raw_output, "__iter__") and not isinstance(raw_output, str):
                 raw_output = "".join(raw_output)

@@ -4,10 +4,11 @@ import argparse
 import json
 import statistics
 import time
-from pathlib import Path
 
 from gentis_ai import Expert, Flow, Router
 from gentis_ai.llm import MockLLM
+from gentis_ai.project_runner import ProjectRunError, run_local_project
+from gentis_ai.scaffolding import TEMPLATE_CHOICES, create_project
 
 
 def main() -> None:
@@ -16,6 +17,12 @@ def main() -> None:
 
     new_parser = subcommands.add_parser("new", help="Create a new GentisAI POC.")
     new_parser.add_argument("name")
+    new_parser.add_argument(
+        "--template",
+        choices=TEMPLATE_CHOICES,
+        default="basic",
+        help="Project template (default: basic).",
+    )
 
     subcommands.add_parser("run", help="Run a local mock chat loop.")
     subcommands.add_parser("eval", help="Run the offline routing eval.")
@@ -23,24 +30,25 @@ def main() -> None:
 
     args = parser.parse_args()
     if args.command == "new":
-        create_project(args.name)
+        root = create_project(args.name, template=args.template)
+        print(f"Created {root}")
+        if args.template in {"azure-support", "gemini-support"}:
+            print("Next:")
+            print(f"  cd {root}")
+            if args.template == "gemini-support":
+                print("  Set GOOGLE_API_KEY in this shell")
+            print("  gentis run")
     elif args.command == "run":
+        try:
+            if run_local_project():
+                return
+        except ProjectRunError as exc:
+            parser.exit(1, f"gentis run: {exc}\n")
         run_mock_chat()
     elif args.command == "eval":
         run_eval()
     elif args.command == "bench":
         run_bench()
-
-
-def create_project(name: str) -> None:
-    root = Path(name)
-    root.mkdir(parents=True, exist_ok=True)
-    package_name = name.replace("-", "_")
-    (root / "app.py").write_text(_app_template(package_name), encoding="utf-8")
-    (root / "test_app.py").write_text(_test_template(), encoding="utf-8")
-    (root / ".env.example").write_text("GOOGLE_API_KEY=\n", encoding="utf-8")
-    (root / "Dockerfile").write_text(_dockerfile_template(), encoding="utf-8")
-    print(f"Created {root}")
 
 
 def run_mock_chat() -> None:
@@ -106,50 +114,6 @@ def _build_demo_flow() -> Flow:
         Expert(name="sales", description="Handles sales and pricing."),
     ]
     return Flow(Router(experts, llm=llm), llm=llm)
-
-
-def _app_template(package_name: str) -> str:
-    return f'''from gentis_ai import Expert, Flow, Router
-from gentis_ai.llm import MockLLM
-
-
-llm = MockLLM(
-    routing_rules={{"help": "support", "buy": "sales"}},
-    responses={{"help": "I can help troubleshoot that.", "buy": "I can help with pricing."}},
-)
-
-support = Expert(name="support", description="Handles support requests.")
-sales = Expert(name="sales", description="Handles sales requests.")
-
-router = Router(experts=[support, sales], llm=llm)
-flow = Flow(router=router, llm=llm)
-
-
-def answer(message: str, session_id: str = "{package_name}-demo") -> str:
-    return flow.process_turn(message, session_id=session_id).content
-
-
-if __name__ == "__main__":
-    print(answer("I need help with login."))
-'''
-
-
-def _test_template() -> str:
-    return '''from app import answer
-
-
-def test_answer():
-    assert "help" in answer("I need help with login.").lower()
-'''
-
-
-def _dockerfile_template() -> str:
-    return """FROM python:3.12-slim
-WORKDIR /app
-COPY . .
-RUN pip install gentis-ai
-CMD ["python", "app.py"]
-"""
 
 
 if __name__ == "__main__":

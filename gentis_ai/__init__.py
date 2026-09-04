@@ -7,7 +7,7 @@ from .core import (
 )
 from .memory import BaseSessionStore, InMemorySessionStore, PNNet, SQLiteSessionStore
 from .routing import RoutingDecision
-from .tools import ToolExecutor, ToolRegistry, ToolSpec
+from .tools import ToolCall, ToolExecutor, ToolPolicy, ToolRegistry, ToolSpec
 from .types import Expert, Message, TurnResponse
 from .router import Router
 from .session import Flow
@@ -36,6 +36,8 @@ __all__ = [
     "InMemorySessionStore",
     "SQLiteSessionStore",
     "ToolSpec",
+    "ToolCall",
+    "ToolPolicy",
     "ToolRegistry",
     "ToolExecutor",
     "GentisAIError",

@@ -1,10 +1,20 @@
 import unittest
+import re
+from pathlib import Path
 
 from pydantic import ValidationError
 
 from gentis_ai import Expert, Flow, Router
 from gentis_ai.types import Message
 from gentis_ai.llm import MockLLM
+
+
+def test_project_version_is_0_2_1():
+    root = Path(__file__).resolve().parents[1]
+    text = (root / "pyproject.toml").read_text(encoding="utf-8")
+    match = re.search(r'^version = "([^"]+)"$', text, re.MULTILINE)
+    assert match is not None
+    assert match.group(1) == "0.2.1"
 
 
 class TestTypesAndPublicApi(unittest.TestCase):

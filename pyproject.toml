@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gentis-ai"
-version = "0.2.0"
+version = "0.2.1"
 description = "A lightweight package for multi-expert AI agent routing and state management."
 authors = [
   { name="GhaouiYoussef", email="youssefghaoui.pro@gmail.com" },
@@ -65,4 +65,22 @@ include = ["gentis_ai*"]
 exclude = ["test_init_project*", "tests*"]
 
 [tool.setuptools.package-data]
-"gentis_ai" = ["prompts/**/*", "templates/**/*"]
+"gentis_ai" = [
+    "prompts/**/*",
+    "templates/Dockerfile",
+    "templates/support_bot.py",
+    "templates/azure_support/Dockerfile",
+    "templates/azure_support/README.md",
+    "templates/azure_support/app.py",
+    "templates/azure_support/env.example",
+    "templates/azure_support/gentis.json",
+    "templates/azure_support/requirements.txt",
+    "templates/azure_support/test_app.py",
+    "templates/gemini_support/Dockerfile",
+    "templates/gemini_support/README.md",
+    "templates/gemini_support/app.py",
+    "templates/gemini_support/env.example",
+    "templates/gemini_support/gentis.json",
+    "templates/gemini_support/requirements.txt",
+    "templates/gemini_support/test_gemini_app.py",
+]
