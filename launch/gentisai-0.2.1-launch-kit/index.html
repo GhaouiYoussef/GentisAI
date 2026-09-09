@@ -1,0 +1,1102 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A lightweight framework for multi-persona AI agent routing and state management.">
+      
+      
+        <meta name="author" content="Ghaoui Youssef">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>GentisAI 0.2.1 Launch Kit - GentisAI</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#gentisai-021-launch-kit" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="GentisAI" class="md-header__button md-logo" aria-label="GentisAI" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            GentisAI
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GentisAI 0.2.1 Launch Kit
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="light-green"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="light-green"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/GhaouiYoussef/GentisAI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GhaouiYoussef/GentisAI
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Getting Started
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../features/streaming/" class="md-tabs__link">
+          
+  
+  
+  Features
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../api-reference/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="GentisAI" class="md-nav__button md-logo" aria-label="GentisAI" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    GentisAI
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/GhaouiYoussef/GentisAI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GhaouiYoussef/GentisAI
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/hybrid-routing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Hybrid Routing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/parallel-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/langgraph-bridge/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LangGraph Bridge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#customer-rescue-command-center" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customer Rescue Command Center
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ai-product-launch-war-room" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AI Product Launch War Room
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#release-status-and-claim-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Release Status And Claim Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-and-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup And Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#launch-video-storyboard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Launch Video Storyboard
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Launch Video Storyboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#0-5-seconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0-5 seconds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-15-seconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5-15 seconds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-35-seconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15-35 seconds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-55-seconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        35-55 seconds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-70-seconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        55-70 seconds
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#70-90-seconds" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        70-90 seconds
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#video-titles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Video Titles
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opening-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opening Hooks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#x-post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        X Post
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linkedin-post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LinkedIn Post
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#hacker-news" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hacker News
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#github-readme-demo-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GitHub README Demo Section
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#launch-readiness-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Launch-Readiness Checklist
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="gentisai-021-launch-kit">GentisAI 0.2.1 Launch Kit</h1>
+<table>
+<thead>
+<tr>
+<th>POC</th>
+<th>Audience</th>
+<th>Problem</th>
+<th>GentisAI proof</th>
+<th>Visual hook</th>
+<th>Video fit</th>
+<th>Complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Customer Rescue Command Center</td>
+<td>CX engineers</td>
+<td>Mixed customer issues</td>
+<td>Hybrid routing, tools, sessions, streaming</td>
+<td>Experts and tool events activate live</td>
+<td>Complex value is visible instantly</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>AI Product Launch War Room</td>
+<td>Founders and product teams</td>
+<td>Focused launch advice</td>
+<td>Contextual routing, parallel experts, synthesis</td>
+<td>Each prompt activates a different team</td>
+<td>Proves routing is not broadcast</td>
+<td>Medium</td>
+</tr>
+</tbody>
+</table>
+<h2 id="customer-rescue-command-center">Customer Rescue Command Center</h2>
+<p>Hook: one customer message assembles the exact rescue team, runs safe fictional tools, and streams a coordinated answer. Billing, Technical Support, Sales, Account Security, Retention, and the Rescue Lead are real <code>Expert</code> definitions. The validated route authorizes <code>check_invoice</code>, <code>create_support_ticket</code>, or <code>lookup_account</code>; <code>Flow</code> executes and reports them.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>flowchart LR
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  UI["Streamlit command center"] --&gt; F["Flow + session"] --&gt; R{"Router"}
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  R --&gt; B["Billing"]
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  R --&gt; T["Technical Support"]
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  R --&gt; X["Retention"]
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  R --&gt; P["Explicit tool policy"] --&gt; E["ToolExecutor"]
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  B --&gt; S["Rescue Lead synthesis"]
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  T --&gt; S
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  X --&gt; S
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  S --&gt; UI
+</code></pre></div>
+<p>Project: <code>demos/customer_rescue/</code> contains <code>app.py</code>, <code>gentis_setup.py</code>, <code>tools.py</code>, <code>requirements.txt</code>, <code>.env.example</code>, <code>README.md</code>, and tests.</p>
+<p>Scenarios:</p>
+<ol>
+<li>Input: <code>Please check invoice INV-2048.</code> Expected: Billing, <code>check_invoice</code>, single-expert stream, invoice review response.</li>
+<li>Input: <code>I was charged twice, the application keeps crashing, and I'm thinking of cancelling.</code> Expected: Billing + Technical Support + Retention, invoice and ticket events, streamed Rescue Lead synthesis.</li>
+<li>Input: <code>Which invoice did you check, and what happens next?</code> Expected: same session ID, Billing route, prior conversation retained, follow-up response about INV-2048.</li>
+</ol>
+<h2 id="ai-product-launch-war-room">AI Product Launch War Room</h2>
+<p>Hook: ask one launch question and only the relevant product team enters the room. Product, Growth, Technical, Risk, Financial, and Copy experts route contextually; the Product Strategist streams hybrid synthesis.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart LR
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>  UI["Brief + launch question"] --&gt; F["Flow + session"] --&gt; R{"Router"}
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  R --&gt; P["Product"]
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  R --&gt; G["Growth"]
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>  R --&gt; A["Architecture"]
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>  R --&gt; K["Risk"]
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>  R --&gt; N["Financial"]
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>  R --&gt; C["Copy"]
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>  P &amp; G &amp; A &amp; K &amp; N &amp; C --&gt; S["Product synthesis"] --&gt; UI
+</code></pre></div>
+<p>Project: <code>demos/launch_war_room/</code> contains <code>app.py</code>, <code>gentis_setup.py</code>, <code>requirements.txt</code>, <code>.env.example</code>, <code>README.md</code>, and tests.</p>
+<p>Scenarios:</p>
+<ol>
+<li>Input: <code>Find the biggest risks in this product.</code> Expected: Risk + Product, active cards, streamed risk framing.</li>
+<li>Input: <code>Write three launch hooks.</code> Expected: Growth + Copywriter, hybrid mode, three deterministic mock hooks.</li>
+<li>Input: <code>Make the second hook more technical.</code> Expected: same session, Growth + Copywriter, retained prior hooks, technical rewrite.</li>
+</ol>
+<h2 id="release-status-and-claim-boundaries">Release Status And Claim Boundaries</h2>
+<p>This kit describes the 0.2.1 source checkout. Before announcing a published
+0.2.1 release, publish the matching reviewed tag and verify its PyPI wheel from
+an isolated environment. Until then, direct demo users to clone the repository
+and install it editable using the commands below. The demos are repository apps,
+not files installed by the core wheel.</p>
+<p>Mock routes, answers, and follow-ups are scripted. Label mock footage and use a
+real provider to demonstrate contextual understanding. Customer tools use fixed,
+fictional invoice and account references; no real billing or ticket system is
+connected. Do not infer real-model latency or savings from the offline benchmark.
+GentisAI is an early-stage library; do not claim production readiness, tenant
+authorization, general PHI protection, or healthcare compliance.</p>
+<h2 id="setup-and-verification">Setup And Verification</h2>
+<p>From the repository root:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>.venv
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[openai]"</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">"streamlit&gt;=1.36,&lt;2"</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>python<span class="w"> </span>-m<span class="w"> </span>streamlit<span class="w"> </span>run<span class="w"> </span>demos/customer_rescue/app.py
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>python<span class="w"> </span>-m<span class="w"> </span>streamlit<span class="w"> </span>run<span class="w"> </span>demos/launch_war_room/app.py
+</code></pre></div>
+<p>Mock is the default. For a real provider, set <code>GENTIS_PROVIDER=openai</code>, <code>OPENAI_API_KEY</code>, optional <code>OPENAI_MODEL</code>, and optional <code>OPENAI_BASE_URL</code> in the working-directory or app-local <code>.env</code>, or in the shell. Shell values take precedence. Azure also supports <code>AzureOpenAIKey</code>, <code>AzureOpenAIEndpoint</code>, <code>AZURE_OPENAI_DEPLOYMENT_NAME</code>, and <code>AZURE_OPENAI_API_VERSION</code>; see the demo README for the complete setup.</p>
+<p>Smoke: compile both apps and start Streamlit headlessly. Routing: run each demo test module. Isolation: verify a new explicit session has empty history. If Streamlit is missing, install its declared range. If a real-provider key is missing, either set it or deliberately select mock mode. If imports resolve to an older wheel, install this checkout editable or publish/install 0.2.1.</p>
+<h2 id="launch-video-storyboard">Launch Video Storyboard</h2>
+<h3 id="0-5-seconds">0-5 seconds</h3>
+<ul>
+<li>Voice-over: "One message. Three specialists. Zero hidden manager loop."</li>
+<li>On-screen action: submit the Customer Rescue showcase; three cards and two tool events activate.</li>
+<li>On-screen text: <code>Explicit routing. Real events.</code></li>
+<li>Transition: hard cut on the first streamed token.</li>
+</ul>
+<h3 id="5-15-seconds">5-15 seconds</h3>
+<ul>
+<li>Voice-over: "GentisAI makes routing explicit: the selected experts and tool events appear as the request runs."</li>
+<li>On-screen action: freeze the route, confidence, session, and measured latency rail.</li>
+<li>On-screen text: <code>Expert + Router + Flow</code></li>
+<li>Transition: route lines collapse into the selected cards.</li>
+</ul>
+<h3 id="15-35-seconds">15-35 seconds</h3>
+<ul>
+<li>Voice-over: "Billing checks the fictional invoice, Support opens a fictional ticket, and Retention joins only because cancellation is present."</li>
+<li>On-screen action: tool results appear, then the Rescue Lead streams synthesis; send the invoice follow-up.</li>
+<li>On-screen text: <code>Tools + hybrid synthesis + session memory</code></li>
+<li>Transition: session badge wipes into the War Room badge.</li>
+</ul>
+<h3 id="35-55-seconds">35-55 seconds</h3>
+<ul>
+<li>Voice-over: "In the War Room, risks activate Product and Risk. Launch hooks activate Growth and Copy. Context changes the team."</li>
+<li>On-screen action: run risk and hook scenario buttons; expert cards change.</li>
+<li>On-screen text: <code>Route contextually. Do not broadcast.</code></li>
+<li>Transition: zoom into the setup code.</li>
+</ul>
+<h3 id="55-70-seconds">55-70 seconds</h3>
+<ul>
+<li>Voice-over: "The architecture stays small: define experts, create a Router, and run a Flow. Mock and real providers share the same application."</li>
+<li>On-screen action: highlight the expert list, <code>Router(...)</code>, <code>Flow(...)</code>, and provider factory.</li>
+<li>On-screen text: <code>Expert + Router + Flow</code></li>
+<li>Transition: terminal slides over the editor.</li>
+</ul>
+<h3 id="70-90-seconds">70-90 seconds</h3>
+<ul>
+<li>Voice-over: "Clone the repository, install this checkout, and try the demos offline. Switch providers to evaluate generated answers."</li>
+<li>On-screen action: show <code>python -m pip install -e ".[openai]"</code> from the cloned repository, then show both run commands, end on repository name.</li>
+<li>On-screen text: <code>Expert + Router + Flow</code> and <code>github.com/GhaouiYoussef/GentisAI</code></li>
+<li>Transition: clean logo hold and call to action.</li>
+</ul>
+<h2 id="video-titles">Video Titles</h2>
+<ol>
+<li>Build Real-Time Multi-Expert AI Without Hidden Agent Loops</li>
+<li>One Message, the Right AI Experts, Live</li>
+<li>GentisAI 0.2.1: Explicit Routing, Tools, and Streaming</li>
+<li>See Which Experts Handle Each Request</li>
+<li>Two Small Apps That Make AI Routing Visible</li>
+</ol>
+<h2 id="opening-hooks">Opening Hooks</h2>
+<ol>
+<li>One message activates exactly the experts it needs.</li>
+<li>See which experts handle each request.</li>
+<li>This AI routing decision is completely visible.</li>
+<li>Three experts respond without a hidden manager loop.</li>
+<li>Watch the product team change with each prompt.</li>
+</ol>
+<h2 id="x-post">X Post</h2>
+<p>GentisAI 0.2.1 makes multi-expert AI visible: explicit routes, application-owned tools, session memory, and streamed hybrid synthesis. Two deterministic Streamlit demos run offline, then switch to an OpenAI-compatible provider without changing the architecture. Try the source demos: <code>github.com/GhaouiYoussef/GentisAI</code>.</p>
+<h2 id="linkedin-post">LinkedIn Post</h2>
+<p>Multi-agent systems often hide routing inside another reasoning loop. GentisAI takes a narrower approach for real-time applications: explicit experts, a validated router decision, and one flow that owns sessions and events. Version 0.2.1 adds application-authorized tool events and streamed hybrid synthesis. The Customer Rescue and Product Launch demos expose selected experts, tool results, session IDs, and measured latency. Mock mode is deterministic and offline; the same setup supports an OpenAI-compatible provider.</p>
+<h2 id="hacker-news">Hacker News</h2>
+<p>GentisAI is a small Python framework for conversational applications that need one or more domain experts without autonomous manager loops. The 0.2.1 demos show structured routing, parallel hybrid consultations, streamed synthesis, explicit sessions, and application-owned tool execution. The core depends on Pydantic; Streamlit is used only for the demos. Mock mode makes every scenario reproducible without an API key.</p>
+<h2 id="github-readme-demo-section">GitHub README Demo Section</h2>
+<p>Run <code>python -m streamlit run demos/customer_rescue/app.py</code> to watch a mixed customer issue route to Billing, Support, and Retention with real tool events. Run <code>python -m streamlit run demos/launch_war_room/app.py</code> to see different launch questions activate different product experts. Both default to deterministic <code>MockLLM</code>; set <code>GENTIS_PROVIDER=openai</code> for an OpenAI-compatible provider.</p>
+<h2 id="launch-readiness-checklist">Launch-Readiness Checklist</h2>
+<ul>
+<li>Run the test suite and both demo test modules, respecting any local file-access restrictions.</li>
+<li>Confirm the release tag matches <code>pyproject.toml</code> and the published wheel version before advertising 0.2.1 as available on PyPI.</li>
+<li>Start both apps from a clean virtual environment in mock mode.</li>
+<li>Verify desktop and mobile layouts, streamed cursor, and no overflow.</li>
+<li>Record the exact session ID before the follow-up.</li>
+<li>Confirm tool cards show real <code>ToolExecutor</code> results.</li>
+<li>Confirm confidence comes from <code>RoutingDecision</code> and latency from <code>perf_counter</code>.</li>
+<li>Confirm zero or unavailable usage is not displayed as a metric.</li>
+<li>Test the chosen real model once and capture no deterministic wording claim.</li>
+<li>Remove keys from the recording shell and terminal history view.</li>
+<li>Rehearse the 90-second sequence and keep a mock-mode backup recording.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
