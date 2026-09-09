@@ -82,10 +82,16 @@ class AzureSettings:
             elif path.endswith("/openai"):
                 path = path[:-len("/openai")]
             endpoint = urlunsplit((parts.scheme, parts.netloc, path, "", ""))
+        base_url = env.get("AZURE_OPENAI_BASE_URL") or None
+        if base_url:
+            parts = urlsplit(base_url)
+            if parts.scheme not in ("http", "https") or not parts.netloc or parts.username or parts.password:
+                raise ValueError("Azure base_url must be a plain HTTP(S) URL without embedded credentials.")
+            base_url = base_url.rstrip("/")
         return cls(
             api_key=env.get("AZURE_OPENAI_API_KEY") or None,
             endpoint=endpoint,
-            base_url=env.get("AZURE_OPENAI_BASE_URL") or None,
+            base_url=base_url,
             deployment=deployment,
             api_version=version,
         )
