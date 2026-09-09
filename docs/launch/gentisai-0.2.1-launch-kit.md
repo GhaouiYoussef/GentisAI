@@ -54,6 +54,21 @@ Scenarios:
 2. Input: `Write three launch hooks.` Expected: Growth + Copywriter, hybrid mode, three deterministic mock hooks.
 3. Input: `Make the second hook more technical.` Expected: same session, Growth + Copywriter, retained prior hooks, technical rewrite.
 
+## Release Status And Claim Boundaries
+
+This kit describes the 0.2.1 source checkout. Before announcing a published
+0.2.1 release, publish the matching reviewed tag and verify its PyPI wheel from
+an isolated environment. Until then, direct demo users to clone the repository
+and install it editable using the commands below. The demos are repository apps,
+not files installed by the core wheel.
+
+Mock routes, answers, and follow-ups are scripted. Label mock footage and use a
+real provider to demonstrate contextual understanding. Customer tools use fixed,
+fictional invoice and account references; no real billing or ticket system is
+connected. Do not infer real-model latency or savings from the offline benchmark.
+GentisAI is an early-stage library; do not claim production readiness, tenant
+authorization, general PHI protection, or healthcare compliance.
+
 ## Setup And Verification
 
 From the repository root:
@@ -66,7 +81,7 @@ python -m streamlit run demos/customer_rescue/app.py
 python -m streamlit run demos/launch_war_room/app.py
 ```
 
-Mock is the default. For a real provider, set `GENTIS_PROVIDER=openai`, `OPENAI_API_KEY`, optional `OPENAI_MODEL`, and optional `OPENAI_BASE_URL` directly in the shell. Do not load `.env` files.
+Mock is the default. For a real provider, set `GENTIS_PROVIDER=openai`, `OPENAI_API_KEY`, optional `OPENAI_MODEL`, and optional `OPENAI_BASE_URL` in the working-directory or app-local `.env`, or in the shell. Shell values take precedence. Azure also supports `AzureOpenAIKey`, `AzureOpenAIEndpoint`, `AZURE_OPENAI_DEPLOYMENT_NAME`, and `AZURE_OPENAI_API_VERSION`; see the demo README for the complete setup.
 
 Smoke: compile both apps and start Streamlit headlessly. Routing: run each demo test module. Isolation: verify a new explicit session has empty history. If Streamlit is missing, install its declared range. If a real-provider key is missing, either set it or deliberately select mock mode. If imports resolve to an older wheel, install this checkout editable or publish/install 0.2.1.
 
@@ -81,7 +96,7 @@ Smoke: compile both apps and start Streamlit headlessly. Routing: run each demo 
 
 ### 5-15 seconds
 
-- Voice-over: "Most agent demos call everyone and hide the orchestration. GentisAI shows exactly who runs and why."
+- Voice-over: "GentisAI makes routing explicit: the selected experts and tool events appear as the request runs."
 - On-screen action: freeze the route, confidence, session, and measured latency rail.
 - On-screen text: `Expert + Router + Flow`
 - Transition: route lines collapse into the selected cards.
@@ -104,14 +119,14 @@ Smoke: compile both apps and start Streamlit headlessly. Routing: run each demo 
 
 - Voice-over: "The architecture stays small: define experts, create a Router, and run a Flow. Mock and real providers share the same application."
 - On-screen action: highlight the expert list, `Router(...)`, `Flow(...)`, and provider factory.
-- On-screen text: `No LangChain. No CrewAI. No hidden loop.`
+- On-screen text: `Expert + Router + Flow`
 - Transition: terminal slides over the editor.
 
 ### 70-90 seconds
 
-- Voice-over: "Install GentisAI, run the deterministic demos offline, then switch to your OpenAI-compatible provider when ready."
-- On-screen action: type `pip install gentis-ai`, show both run commands, end on repository name.
-- On-screen text: `pip install gentis-ai` and `github.com/GhaouiYoussef/GentisAI`
+- Voice-over: "Clone the repository, install this checkout, and try the demos offline. Switch providers to evaluate generated answers."
+- On-screen action: show `python -m pip install -e ".[openai]"` from the cloned repository, then show both run commands, end on repository name.
+- On-screen text: `Expert + Router + Flow` and `github.com/GhaouiYoussef/GentisAI`
 - Transition: clean logo hold and call to action.
 
 ## Video Titles
@@ -119,20 +134,20 @@ Smoke: compile both apps and start Streamlit headlessly. Routing: run each demo 
 1. Build Real-Time Multi-Expert AI Without Hidden Agent Loops
 2. One Message, the Right AI Experts, Live
 3. GentisAI 0.2.1: Explicit Routing, Tools, and Streaming
-4. Stop Calling Every Agent for Every Request
+4. See Which Experts Handle Each Request
 5. Two Small Apps That Make AI Routing Visible
 
 ## Opening Hooks
 
 1. One message activates exactly the experts it needs.
-2. Stop paying every agent to answer every question.
+2. See which experts handle each request.
 3. This AI routing decision is completely visible.
 4. Three experts respond without a hidden manager loop.
 5. Watch the product team change with each prompt.
 
 ## X Post
 
-GentisAI 0.2.1 makes multi-expert AI visible: explicit routes, application-owned tools, session memory, and streamed hybrid synthesis. Two deterministic Streamlit demos run offline, then switch to an OpenAI-compatible provider without changing the architecture. `pip install gentis-ai`
+GentisAI 0.2.1 makes multi-expert AI visible: explicit routes, application-owned tools, session memory, and streamed hybrid synthesis. Two deterministic Streamlit demos run offline, then switch to an OpenAI-compatible provider without changing the architecture. Try the source demos: `github.com/GhaouiYoussef/GentisAI`.
 
 ## LinkedIn Post
 
@@ -148,7 +163,8 @@ Run `python -m streamlit run demos/customer_rescue/app.py` to watch a mixed cust
 
 ## Launch-Readiness Checklist
 
-- Run the full test suite and both demo test modules.
+- Run the test suite and both demo test modules, respecting any local file-access restrictions.
+- Confirm the release tag matches `pyproject.toml` and the published wheel version before advertising 0.2.1 as available on PyPI.
 - Start both apps from a clean virtual environment in mock mode.
 - Verify desktop and mobile layouts, streamed cursor, and no overflow.
 - Record the exact session ID before the follow-up.

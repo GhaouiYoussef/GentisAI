@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import os
+from pathlib import Path
 from collections.abc import Callable, Mapping
 from typing import Any
 
 from gentis_ai import Expert, Flow, Router
+from gentis_ai.config import load_environment
 from gentis_ai.llm import GeminiLLM
 
 
@@ -17,7 +18,7 @@ def build_llm(
     gemini_factory: Callable[..., Any] = GeminiLLM,
     output: Callable[[str], None] = print,
 ) -> tuple[Any, str]:
-    environment = os.environ if environment is None else environment
+    environment = load_environment(Path(__file__).with_name(".env")) if environment is None else environment
     api_key = environment.get("GOOGLE_API_KEY") or environment.get("GEMINI_API_KEY")
     if not api_key:
         raise RuntimeError(

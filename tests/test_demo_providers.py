@@ -55,8 +55,10 @@ def test_azure_uses_endpoint_and_deployment_without_exposing_them():
         "azure_endpoint": "https://private.example",
         "base_url": None,
         "model_name": "private-deployment",
+        "api_version": None,
+        "environment": {},
         "timeout": 45.0,
-        "max_tokens": 900,
+        "max_completion_tokens": 900,
     }
     assert label == "Azure OpenAI"
     assert "azure-secret" not in label

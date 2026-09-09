@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-import os
+from pathlib import Path
 from collections.abc import Mapping
 
 from gentis_ai import Expert, Flow, Router, ToolCall
+from gentis_ai.config import load_environment
 from gentis_ai.llm import MockLLM
 from gentis_ai.tools import ToolExecutor, ToolRegistry
 
@@ -95,7 +96,8 @@ def _build_llm(
 
 
 def build_flow(provider: str | None = None) -> tuple[Flow, str]:
-    llm, label = _build_llm((provider or os.getenv("GENTIS_PROVIDER", "mock")).lower())
+    environment = load_environment(Path(__file__).with_name(".env"))
+    llm, label = _build_llm((provider or environment.get("GENTIS_PROVIDER", "mock")).lower(), environment)
     experts = {
         name: Expert(name=name, description=desc)
         for name, desc in EXPERT_DESCRIPTIONS.items()

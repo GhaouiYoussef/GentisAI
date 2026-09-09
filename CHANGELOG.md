@@ -2,6 +2,15 @@
 
 ## 0.2.1
 
+- Load local .env settings in demos and provider templates with shell overrides.
+- Support Azure aliases, full deployment URLs, explicit API versions, and
+  GPT-5-compatible completion token budgets.
+
+- Refresh demo expert cards and traces during generation, expose fictional tool
+  results, and retain measured latency after reruns.
+- Return generic tool failures and redact UUIDs, emails, and Bearer tokens in
+  configured logs, including tracebacks.
+- Clarify source-checkout setup, scripted mock behavior, and deployment boundaries.
 - Add typed, application-owned tool policies and real tool call/result events.
 - Stream hybrid synthesis while exposing selected expert activity.
 - Unify process and stream turn behavior with session-safe history updates.
