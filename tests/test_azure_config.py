@@ -1,6 +1,9 @@
 import json
 
-import httpx
+try:
+    import httpx
+except ImportError:  # pragma: no cover - compatibility with httpx2-only environments
+    import httpx2 as httpx
 import pytest
 
 from gentis_ai.llm import AzureOpenAILLM
