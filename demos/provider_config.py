@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import os
 from collections.abc import Callable, Mapping
 from typing import Any
 
+from gentis_ai.config import AzureSettings, load_environment
 from gentis_ai.llm import AzureOpenAILLM, GeminiLLM, OpenAICompatibleLLM
 
 
@@ -15,10 +15,10 @@ def build_cloud_llm(
     environment: Mapping[str, str] | None = None,
     *,
     gemini_factory: ProviderFactory = GeminiLLM,
-    azure_factory: ProviderFactory = AzureOpenAILLM,
+    azure_factory: ProviderFactory | None = None,
     openai_factory: ProviderFactory = OpenAICompatibleLLM,
 ) -> tuple[Any, str]:
-    environment = os.environ if environment is None else environment
+    environment = load_environment() if environment is None else environment
 
     if provider == "gemini":
         key = environment.get("GOOGLE_API_KEY") or environment.get("GEMINI_API_KEY")
@@ -34,32 +34,18 @@ def build_cloud_llm(
         )
 
     if provider == "azure":
-        key = environment.get("AZURE_OPENAI_API_KEY")
-        endpoint = environment.get("AZURE_OPENAI_ENDPOINT")
-        base_url = environment.get("AZURE_OPENAI_BASE_URL")
-        deployment = environment.get("AZURE_OPENAI_DEPLOYMENT") or environment.get(
-            "AZURE_OPENAI_MODEL"
-        )
-        missing = []
-        if not key:
-            missing.append("API key")
-        if not endpoint and not base_url:
-            missing.append("endpoint")
-        if not deployment:
-            missing.append("deployment")
+        settings = AzureSettings.from_environment(environment)
+        missing = settings.missing()
         if missing:
             raise RuntimeError(
                 "Azure OpenAI configuration is incomplete when "
                 f"GENTIS_PROVIDER=azure; missing {' and '.join(missing)}."
             )
         return (
-            azure_factory(
-                api_key=key,
-                azure_endpoint=endpoint,
-                base_url=base_url,
-                model_name=deployment,
+            (azure_factory or AzureOpenAILLM)(
+                **settings.llm_options(),
                 timeout=45.0,
-                max_tokens=900,
+                max_completion_tokens=900,
             ),
             "Azure OpenAI",
         )

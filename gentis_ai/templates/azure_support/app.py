@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-import os
+from pathlib import Path
 import sys
 import time
 from collections.abc import Callable, Mapping
 from typing import Any, TextIO
 
 from gentis_ai import Expert, Flow, Router
+from gentis_ai.config import AzureSettings, load_environment
 from gentis_ai.llm import AzureOpenAILLM, BaseLLM, MockLLM
 
 
@@ -19,22 +20,9 @@ def build_llm(
     azure_client: Any = None,
     output: Callable[[str], None] = print,
 ) -> tuple[BaseLLM, str]:
-    env = os.environ if environment is None else environment
-    api_key = env.get("AZURE_OPENAI_API_KEY", "").strip()
-    endpoint = env.get("AZURE_OPENAI_ENDPOINT", "").strip()
-    base_url = env.get("AZURE_OPENAI_BASE_URL", "").strip()
-    deployment = (
-        env.get("AZURE_OPENAI_DEPLOYMENT", "").strip()
-        or env.get("AZURE_OPENAI_MODEL", "").strip()
-    )
-
-    missing = []
-    if not api_key:
-        missing.append("API key")
-    if not endpoint and not base_url:
-        missing.append("endpoint")
-    if not deployment:
-        missing.append("deployment")
+    env = load_environment(Path(__file__).with_name(".env")) if environment is None else environment
+    settings = AzureSettings.from_environment(env)
+    missing = settings.missing()
 
     if missing:
         output(
@@ -44,16 +32,9 @@ def build_llm(
         output(f"[GentisAI] Missing: {', '.join(missing)}.")
         return _build_mock_llm(), "local mock"
 
-    kwargs: dict[str, Any] = {
-        "api_key": api_key,
-        "model_name": deployment,
-    }
+    kwargs = settings.llm_options()
     if azure_client is not None:
         kwargs["client"] = azure_client
-    if endpoint:
-        kwargs["azure_endpoint"] = endpoint
-    else:
-        kwargs["base_url"] = base_url
 
     llm = AzureOpenAILLM(**kwargs)
     output("[GentisAI] Provider: Azure OpenAI.")

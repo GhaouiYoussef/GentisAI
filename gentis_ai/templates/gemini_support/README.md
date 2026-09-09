@@ -15,4 +15,6 @@ gentis run
 
 `GEMINI_API_KEY` is also accepted. The default model is `gemini-2.5-flash`;
 override it with `GEMINI_MODEL` when needed. The app reads credentials from the
-process environment and never prints them.
+working-directory `.env`, then its own `.env`, with shell variables taking
+precedence. Explicit environment mappings used in tests do not read files.
+The application never prints credentials.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 from typing import Any
 
@@ -9,6 +10,7 @@ from gentis_ai.core.errors import ToolExecutionError
 
 from .registry import ToolRegistry
 
+logger = logging.getLogger(__name__)
 
 class ToolResult(BaseModel):
     name: str
@@ -59,7 +61,8 @@ class ToolExecutor:
         except TimeoutError:
             future.cancel()
             return ToolResult(name=name, ok=False, error="Tool timed out.")
-        except Exception as exc:
-            return ToolResult(name=name, ok=False, error=str(exc))
+        except Exception:
+            logger.exception("Tool execution failed: %s", name)
+            return ToolResult(name=name, ok=False, error="Tool execution failed.")
         finally:
             executor.shutdown(wait=False, cancel_futures=True)

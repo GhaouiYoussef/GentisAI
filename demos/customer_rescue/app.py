@@ -1,11 +1,17 @@
 from __future__ import annotations
 
+import logging
 import time
 import uuid
 
 import streamlit as st
 
 from demos.customer_rescue.gentis_setup import EXPERT_LABELS, SCENARIOS, build_flow
+from demos.telemetry import render_trace
+from gentis_ai.observability.logging import configure_logging
+
+configure_logging()
+logger = logging.getLogger(__name__)
 
 
 st.set_page_config(
@@ -44,7 +50,13 @@ def new_session() -> None:
     st.session_state.rescue_selected = []
 
 
-initialize_state()
+try:
+    initialize_state()
+except Exception:
+    logger.exception("Customer Rescue provider setup failed")
+    st.error("Provider setup failed. Check the selected provider configuration and try again.")
+    st.stop()
+st.caption("Fictional customer data and tools. MockLLM uses scripted routes and answers.")
 st.markdown(
     f"""<div class="mast"><div class="eyebrow">GentisAI / Live routing demo</div><h1>Customer Rescue Command Center</h1><div class="badges"><span class="badge">{st.session_state.rescue_provider}</span><span class="badge">Session {st.session_state.rescue_session_id}</span></div></div>""",
     unsafe_allow_html=True,
@@ -62,17 +74,27 @@ for column, (label, prompt) in zip(scenario_cols, SCENARIOS.items()):
     if column.button(label, use_container_width=True):
         chosen = prompt
 
-cards = (
-    '<div class="experts">'
-    + "".join(
-        f'<div class="expert {"active" if name in st.session_state.rescue_selected else ""}">{label}</div>'
-        for name, label in EXPERT_LABELS.items()
-    )
-    + "</div>"
-)
-st.markdown(cards, unsafe_allow_html=True)
+cards = st.empty()
 
+
+def render_cards():
+    cards.markdown(
+        '<div class="experts">'
+        + "".join(
+            f'<div class="expert {"active" if name in st.session_state.rescue_selected else ""}">{label}</div>'
+            for name, label in EXPERT_LABELS.items()
+        )
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+
+render_cards()
 chat, rail = st.columns([2.1, 1])
+with rail:
+    st.subheader("Routing telemetry")
+    trace_panel = st.empty()
+render_trace(trace_panel, st.session_state.rescue_events)
 with chat:
     for item in st.session_state.rescue_messages:
         with st.chat_message(item["role"]):
@@ -90,6 +112,10 @@ with chat:
             started = time.perf_counter()
             text = ""
             timeline = []
+            st.session_state.rescue_events = timeline
+            st.session_state.rescue_selected = []
+            render_cards()
+            render_trace(trace_panel, timeline)
             final = None
             try:
                 for event in st.session_state.rescue_flow.stream_turn(
@@ -100,6 +126,8 @@ with chat:
                             "experts"
                         ]
                         timeline.append({"type": "route", **event.data["decision"]})
+                        render_cards()
+                        render_trace(trace_panel, timeline)
                     elif event.type in {
                         "expert_started",
                         "tool_call",
@@ -107,15 +135,18 @@ with chat:
                         "error",
                     }:
                         timeline.append(
-                            {"type": event.type, "name": event.agent_name, **event.data}
+                            {"type": event.type, "name": event.agent_name, "error": event.error, **event.data}
                         )
+                        render_trace(trace_panel, timeline)
                     elif event.type == "token":
                         text += event.content
                         placeholder.markdown(text + "|")
                     elif event.type == "final":
                         final = event.data["response"]
-            except Exception as exc:
-                st.error(f"Demo setup error: {exc}")
+            except Exception:
+                logger.exception("Customer Rescue request failed")
+                placeholder.empty()
+                st.error("The request could not be completed. Please try again.")
             if final is not None:
                 text = final.content
                 placeholder.markdown(text)
@@ -126,15 +157,3 @@ with chat:
                 )
                 st.caption(f"{elapsed} ms measured")
                 st.rerun()
-
-with rail:
-    st.subheader("Routing telemetry")
-    for event in st.session_state.rescue_events:
-        kind = event["type"].replace("_", " ").upper()
-        detail = event.get("name") or ", ".join(event.get("experts", []))
-        if event.get("confidence") is not None:
-            detail += f" · confidence {event['confidence']:.2f}"
-        st.markdown(
-            f'<div class="event"><b>{kind}</b><br>{detail}</div>',
-            unsafe_allow_html=True,
-        )

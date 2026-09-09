@@ -47,7 +47,7 @@ class TestTools(unittest.TestCase):
         registry.register(explode)
         result = ToolExecutor(registry).execute("explode", {})
         self.assertFalse(result.ok)
-        self.assertEqual(result.error, "boom")
+        self.assertEqual(result.error, "Tool execution failed.")
 
     def test_tool_timeout_returns_safe_result(self):
         registry = ToolRegistry()

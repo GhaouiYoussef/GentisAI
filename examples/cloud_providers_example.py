@@ -4,43 +4,44 @@ import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from gentis_ai import Expert, Flow, Router
+from gentis_ai.config import load_environment
 from gentis_ai.llm import AzureOpenAILLM, BedrockLLM, OpenAICompatibleLLM, VLLMLLM
 
+environment = load_environment()
 
 def build_llm(provider: str):
     if provider == "azure":
         return AzureOpenAILLM(
-            model_name=os.getenv("AZURE_OPENAI_DEPLOYMENT"),
-            azure_endpoint=os.getenv("AZURE_OPENAI_ENDPOINT"),
-            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-            temperature=0.2,
+            environment=environment,
+            timeout=45.0,
+            max_completion_tokens=900,
         )
 
     if provider == "aws":
         return BedrockLLM(
-            model_name=os.getenv("AWS_BEDROCK_MODEL_ID"),
-            region_name=os.getenv("AWS_REGION"),
+            model_name=environment.get("AWS_BEDROCK_MODEL_ID"),
+            region_name=environment.get("AWS_REGION"),
             temperature=0.2,
             max_tokens=512,
         )
 
     if provider == "vllm":
         return VLLMLLM(
-            model_name=os.getenv("VLLM_MODEL", "facebook/opt-125m"),
-            base_url=os.getenv("VLLM_BASE_URL", "http://localhost:8000/v1"),
-            api_key=os.getenv("VLLM_API_KEY", "EMPTY"),
+            model_name=environment.get("VLLM_MODEL", "facebook/opt-125m"),
+            base_url=environment.get("VLLM_BASE_URL", "http://localhost:8000/v1"),
+            api_key=environment.get("VLLM_API_KEY", "EMPTY"),
             temperature=0.2,
         )
 
     return OpenAICompatibleLLM(
-        model_name=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
-        api_key=os.getenv("OPENAI_API_KEY"),
-        base_url=os.getenv("OPENAI_BASE_URL"),
+        model_name=environment.get("OPENAI_MODEL", "gpt-4o-mini"),
+        api_key=environment.get("OPENAI_API_KEY"),
+        base_url=environment.get("OPENAI_BASE_URL"),
         temperature=0.2,
     )
 
 
-provider = os.getenv("GENTIS_PROVIDER", "azure").lower()
+provider = environment.get("GENTIS_PROVIDER", "azure").lower()
 llm = build_llm(provider)
 
 support_expert = Expert(
