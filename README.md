@@ -25,8 +25,6 @@ gentis demo launch-war-room
 
 Already installed `gentis-ai`? Install the `demo` extra with the command above. If `gentis` is not on your PATH, use `python -m gentis_ai demo`. For a busy port, use `gentis demo --port 8502`.
 
-These commands require the 0.2.2 release built from this source. Until it is published, an older PyPI version will not include them. Maintainers can test the built wheel using the instructions under Development.
-
 ## Connect Your Provider
 
 Run these commands from the folder where you want to keep your configuration. Choose one provider:
