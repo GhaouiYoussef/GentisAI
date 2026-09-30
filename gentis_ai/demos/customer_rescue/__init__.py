@@ -1,0 +1,1 @@
+"""Bundled GentisAI demo assets."""

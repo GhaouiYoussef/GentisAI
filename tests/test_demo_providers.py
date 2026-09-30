@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from gentis_ai.providers import ConfigurationError
+
 import pytest
 
 from demos.customer_rescue.gentis_setup import _build_llm as build_rescue_llm
@@ -33,6 +35,8 @@ def test_gemini_uses_supported_key_alias_without_exposing_it(key_name):
     assert llm.options == {
         "api_key": "gemini-secret",
         "model_name": "gemini-2.5-flash",
+        "timeout": 45.0,
+        "max_output_tokens": 4096,
     }
     assert label == "Gemini (gemini-2.5-flash)"
     assert "gemini-secret" not in label
@@ -58,7 +62,7 @@ def test_azure_uses_endpoint_and_deployment_without_exposing_them():
         "api_version": None,
         "environment": {},
         "timeout": 45.0,
-        "max_completion_tokens": 900,
+        "max_completion_tokens": 4096,
     }
     assert label == "Azure OpenAI"
     assert "azure-secret" not in label
@@ -79,7 +83,8 @@ def test_openai_provider_remains_supported():
         "base_url": None,
         "model_name": "gpt-4o-mini",
         "timeout": 45.0,
-        "max_tokens": 900,
+        "token_parameter": "max_completion_tokens",
+        "max_completion_tokens": 4096,
     }
     assert label == "OpenAI (gpt-4o-mini)"
     assert "openai-secret" not in label
@@ -100,14 +105,14 @@ def test_openai_provider_remains_supported():
 def test_selected_provider_rejects_incomplete_configuration(
     provider, environment, missing_name
 ):
-    with pytest.raises(RuntimeError, match=missing_name):
+    with pytest.raises(ConfigurationError, match=missing_name):
         build_provider(provider, environment)
 
 
 def test_unknown_provider_names_every_supported_option():
     with pytest.raises(
-        RuntimeError,
-        match="GENTIS_PROVIDER must be 'mock', 'openai', 'gemini', or 'azure'",
+        ConfigurationError,
+        match="GENTIS_PROVIDER must be one of: mock, openai, azure, gemini, bedrock",
     ):
         build_provider("other", {})
 

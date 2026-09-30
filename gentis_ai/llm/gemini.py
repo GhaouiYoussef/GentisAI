@@ -17,7 +17,7 @@ class GeminiLLM(BaseLLM):
         supports_token_counting=True,
     )
 
-    def __init__(self, api_key: Optional[str] = None, model_name: str = "gemini-2.0-flash-lite"):
+    def __init__(self, api_key: Optional[str] = None, model_name: str = "gemini-2.0-flash-lite", *, timeout: float | None = None, **default_params: Any):
         if not genai:
             raise ImportError(
                 "google-genai is required for GeminiLLM. Install with "
@@ -27,8 +27,12 @@ class GeminiLLM(BaseLLM):
         resolved_api_key = api_key or os.getenv("GOOGLE_API_KEY")
         if not resolved_api_key:
             raise ValueError("API key is required. Provide it directly or set GOOGLE_API_KEY in the environment. \nIf you don't have one, create one for free at https://aistudio.google.com/api-keys/")
-        self.client = genai.Client(api_key=resolved_api_key)
+        client_options = {"api_key": resolved_api_key}
+        if timeout is not None:
+            client_options["http_options"] = types.HttpOptions(timeout=int(timeout * 1000))
+        self.client = genai.Client(**client_options)
         self.model_name = model_name
+        self.default_params = default_params.copy()
         self._last_usage = {"total": 0}
 
     def generate(self, messages: List[Message], system_prompt: str = None, tools: List[Any] = None, stream: bool = False, **kwargs) -> Union[str, Generator[str, None, None]]:
@@ -56,12 +60,16 @@ class GeminiLLM(BaseLLM):
             ))
 
         # Configure Tools
-        tool_config = None
+        params = self.default_params.copy()
+        if "max_tokens" in kwargs or "max_output_tokens" in kwargs:
+            params.pop("max_tokens", None)
+            params.pop("max_output_tokens", None)
+        params.update(kwargs)
+        if "max_tokens" in params:
+            params.setdefault("max_output_tokens", params.pop("max_tokens"))
         if tools:
-            tool_config = types.GenerateContentConfig(
-                tools=tools,
-                automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=False)
-            )
+            params.update(tools=tools, automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=False))
+        tool_config = types.GenerateContentConfig(**params) if params else None
 
         try:
             # We use chats.create to maintain some semblance of session if needed, 

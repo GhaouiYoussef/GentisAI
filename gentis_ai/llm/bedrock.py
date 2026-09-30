@@ -24,6 +24,7 @@ class BedrockLLM(BaseLLM):
         region_name: Optional[str] = None,
         client: Any = None,
         client_kwargs: Optional[Dict[str, Any]] = None,
+        timeout: float | None = None,
         **default_params: Any,
     ):
         if client is None and not boto3:
@@ -47,6 +48,11 @@ class BedrockLLM(BaseLLM):
             return
 
         kwargs = client_kwargs.copy() if client_kwargs else {}
+        if timeout is not None:
+            from botocore.config import Config
+
+            timeout_config = Config(connect_timeout=timeout, read_timeout=timeout)
+            kwargs["config"] = kwargs["config"].merge(timeout_config) if "config" in kwargs else timeout_config
         resolved_region = region_name or os.getenv("AWS_REGION") or os.getenv("AWS_DEFAULT_REGION")
         if resolved_region:
             kwargs["region_name"] = resolved_region

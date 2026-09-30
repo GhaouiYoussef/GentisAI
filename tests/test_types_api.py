@@ -9,12 +9,12 @@ from gentis_ai.types import Message
 from gentis_ai.llm import MockLLM
 
 
-def test_project_version_is_0_2_1():
+def test_project_version_is_0_2_2():
     root = Path(__file__).resolve().parents[1]
     text = (root / "pyproject.toml").read_text(encoding="utf-8")
     match = re.search(r'^version = "([^"]+)"$', text, re.MULTILINE)
     assert match is not None
-    assert match.group(1) == "0.2.1"
+    assert match.group(1) == "0.2.2"
 
 
 class TestTypesAndPublicApi(unittest.TestCase):

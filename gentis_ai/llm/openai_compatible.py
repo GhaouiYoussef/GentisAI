@@ -24,6 +24,7 @@ class OpenAICompatibleLLM(BaseLLM):
         model_name: str = "gpt-4o-mini",
         client: Any = None,
         client_kwargs: Optional[Dict[str, Any]] = None,
+        token_parameter: str | None = None,
         **default_params: Any,
     ):
         if client is None and not OpenAI:
@@ -33,6 +34,9 @@ class OpenAICompatibleLLM(BaseLLM):
             )
 
         self.model_name = model_name
+        if token_parameter not in (None, "max_tokens", "max_completion_tokens"):
+            raise ValueError("token_parameter must be max_tokens or max_completion_tokens.")
+        self.token_parameter = token_parameter
         self.default_params = default_params.copy()
         self._last_usage = {"total": 0}
 
@@ -63,7 +67,16 @@ class OpenAICompatibleLLM(BaseLLM):
         openai_messages = self._format_messages(messages, system_prompt)
 
         api_kwargs = self.default_params.copy()
+        # A per-call router budget overrides either spelling of the default budget.
+        if "max_tokens" in kwargs or "max_completion_tokens" in kwargs:
+            api_kwargs.pop("max_tokens", None)
+            api_kwargs.pop("max_completion_tokens", None)
         api_kwargs.update(kwargs)
+        if self.token_parameter:
+            budget = api_kwargs.pop("max_completion_tokens", api_kwargs.get("max_tokens"))
+            api_kwargs.pop("max_tokens", None)
+            if budget is not None:
+                api_kwargs[self.token_parameter] = budget
         if tools:
             api_kwargs["tools"] = tools
 

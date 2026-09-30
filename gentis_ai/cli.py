@@ -4,11 +4,15 @@ import argparse
 import json
 import statistics
 import time
+from pathlib import Path
 
 from gentis_ai import Expert, Flow, Router
 from gentis_ai.llm import MockLLM
 from gentis_ai.project_runner import ProjectRunError, run_local_project
 from gentis_ai.scaffolding import TEMPLATE_CHOICES, create_project
+from gentis_ai.demo import DEMO_CHOICES, launch_demo
+from gentis_ai.onboarding import configure, doctor
+from gentis_ai.providers import ConfigurationError, PROVIDER_CHOICES
 
 
 def main() -> None:
@@ -24,20 +28,82 @@ def main() -> None:
         help="Project template (default: basic).",
     )
 
-    subcommands.add_parser("run", help="Run a local mock chat loop.")
+    subcommands.add_parser(
+        "run", help="Run your generated project, or the built-in mock chat."
+    )
+    demo_parser = subcommands.add_parser(
+        "demo", help="Open a bundled Streamlit demo; no clone needed."
+    )
+    demo_parser.add_argument(
+        "name", choices=DEMO_CHOICES, nargs="?", default="customer-rescue"
+    )
+    demo_parser.add_argument("--provider", choices=PROVIDER_CHOICES)
+    demo_parser.add_argument("--port", type=int, default=8501)
+    demo_parser.add_argument(
+        "--headless", action="store_true", help="Do not open a browser automatically."
+    )
+    configure_parser = subcommands.add_parser(
+        "configure", help="Create a new provider configuration interactively."
+    )
+    configure_parser.add_argument("--provider", choices=PROVIDER_CHOICES, required=True)
+    configure_parser.add_argument("--output", type=Path, default=Path(".env"))
+    doctor_parser = subcommands.add_parser(
+        "doctor", help="Check local configuration and provider SDK without API calls."
+    )
+    doctor_parser.add_argument("--provider", choices=PROVIDER_CHOICES)
     subcommands.add_parser("eval", help="Run the offline routing eval.")
     subcommands.add_parser("bench", help="Run a tiny offline latency benchmark.")
 
     args = parser.parse_args()
+    if args.command in {"demo", "configure", "doctor"}:
+        try:
+            if args.command == "demo":
+                raise SystemExit(
+                    launch_demo(
+                        args.name,
+                        provider=args.provider,
+                        port=args.port,
+                        headless=args.headless,
+                    )
+                )
+            if args.command == "configure":
+                path = configure(args.provider, args.output)
+                print(
+                    f"Created {path}. Keep this file private and out of version control."
+                )
+                print("Next: gentis doctor, then gentis demo (from this directory).")
+                if args.output != Path(".env"):
+                    print(
+                        "Custom output paths are not auto-loaded. Place the file at .env in your project before running."
+                    )
+            else:
+                doctor(args.provider)
+        except (ConfigurationError, ImportError) as exc:
+            parser.exit(1, f"gentis {args.command}: {exc}\n")
+        except OSError:
+            parser.exit(
+                1,
+                f"gentis {args.command}: Could not access the required file or start the process. Check the path and permissions.\n",
+            )
+        except (EOFError, KeyboardInterrupt):
+            parser.exit(1, f"gentis {args.command}: Cancelled.\n")
+        return
     if args.command == "new":
-        root = create_project(args.name, template=args.template)
+        try:
+            root = create_project(args.name, template=args.template)
+        except (ValueError, OSError) as exc:
+            parser.exit(1, f"gentis new: {exc}\n")
         print(f"Created {root}")
-        if args.template in {"azure-support", "gemini-support"}:
+        if args.template in {"support", "azure-support", "gemini-support"}:
             print("Next:")
             print(f"  cd {root}")
             if args.template == "gemini-support":
                 print("  Set GOOGLE_API_KEY in this shell")
             print("  gentis run")
+            if args.template == "support":
+                print(
+                    "  Edit app.py to customize experts; gentis configure --provider azure enables a real provider."
+                )
     elif args.command == "run":
         try:
             if run_local_project():
@@ -73,7 +139,11 @@ def run_eval() -> None:
     for query, expected in cases.items():
         response = flow.process_turn(query, session_id=f"eval-{query}")
         results.append(response.agent_name == expected)
-        print(json.dumps({"query": query, "expected": expected, "got": response.agent_name}))
+        print(
+            json.dumps(
+                {"query": query, "expected": expected, "got": response.agent_name}
+            )
+        )
     accuracy = sum(results) / len(results)
     print(json.dumps({"accuracy": accuracy}))
     if accuracy < 1.0:
@@ -94,7 +164,9 @@ def run_bench() -> None:
             {
                 "runs": len(samples),
                 "p50_ms": statistics.median(sorted_samples),
-                "p95_ms": sorted_samples[min(len(sorted_samples) - 1, int(len(sorted_samples) * 0.95))],
+                "p95_ms": sorted_samples[
+                    min(len(sorted_samples) - 1, int(len(sorted_samples) * 0.95))
+                ],
             }
         )
     )

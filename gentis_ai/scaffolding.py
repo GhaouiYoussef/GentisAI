@@ -4,7 +4,7 @@ from importlib import resources
 from pathlib import Path
 
 
-TEMPLATE_CHOICES = ("basic", "azure-support", "gemini-support")
+TEMPLATE_CHOICES = ("basic", "azure-support", "gemini-support", "support")
 AZURE_SUPPORT_FILES = {
     "app.py": "app.py",
     "test_app.py": "test_app.py",
@@ -31,13 +31,41 @@ def create_project(name: str, template: str = "basic") -> Path:
         raise ValueError(f"Unknown template {template!r}. Choose from: {choices}.")
 
     root = Path(name)
+    if root.exists() and (not root.is_dir() or any(root.iterdir())):
+        raise ValueError(
+            "Project destination must be new or empty; existing files are never overwritten."
+        )
     root.mkdir(parents=True, exist_ok=True)
-    if template == "azure-support":
+    if template == "support":
+        source = resources.files("gentis_ai").joinpath(
+            "templates", "provider_support.py"
+        )
+        (root / "app.py").write_text(
+            source.read_text(encoding="utf-8"), encoding="utf-8"
+        )
+        (root / "gentis.json").write_text(
+            '{"template": "support", "entrypoint": "app.py"}\n', encoding="utf-8"
+        )
+        (root / "requirements.txt").write_text(
+            "gentis-ai>=0.2.2\npython-dotenv>=1.0.0\n", encoding="utf-8"
+        )
+        (root / ".gitignore").write_text(
+            ".env\n.env.*\n__pycache__/\n.venv/\n", encoding="utf-8"
+        )
+        (root / "README.md").write_text(
+            "# Your GentisAI Agent\n\nRun `gentis run` for an offline chat. Edit the experts and prompts in `app.py`.\n\n"
+            'For a live provider, install its extra, for example `python -m pip install "gentis-ai[azure]"`, '
+            "then run `gentis configure --provider azure`, `gentis doctor`, and `gentis run`. "
+            "OpenAI, Gemini, and Bedrock also work with their corresponding extras and provider names.\n\n"
+            "The working-directory .env is loaded; shell variables take precedence. Never commit credentials.\n",
+            encoding="utf-8",
+        )
+    elif template == "azure-support":
         _copy_azure_support(root)
     elif template == "gemini-support":
         _copy_gemini_support(root)
     else:
-        _write_basic(root, name)
+        _write_basic(root, root.name)
     return root
 
 
@@ -96,12 +124,12 @@ if __name__ == "__main__":
 
 
 def _test_template() -> str:
-    return '''from app import answer
+    return """from app import answer
 
 
 def test_answer():
     assert "help" in answer("I need help with login.").lower()
-'''
+"""
 
 
 def _dockerfile_template() -> str:

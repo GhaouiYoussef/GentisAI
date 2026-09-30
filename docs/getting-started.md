@@ -1,14 +1,42 @@
 # Getting Started
 
-## Installation
+## Run The Demo
 
-GentisAI supports Python 3.10+.
+Use Python 3.10+ and GentisAI 0.2.2 or newer. No clone or API key is required:
 
 ```bash
-pip install gentis-ai
+python -m pip install --upgrade "gentis-ai[demo]>=0.2.2"
+gentis demo
 ```
 
-The minimal install includes only core routing, sessions, tools, and `pydantic`.
+Click **Customer rescue**, then **Session follow-up**. For the launch planning demo, run `gentis demo launch-war-room`. Mock mode uses scripted answers. Use `python -m gentis_ai demo` if the console command is not on PATH.
+
+## Connect A Provider
+
+Choose the matching extra and provider name: `azure`, `openai`, `gemini`, or `bedrock`. For example:
+
+```bash
+python -m pip install "gentis-ai[demo,azure]>=0.2.2"
+gentis configure --provider azure
+gentis doctor
+gentis demo
+```
+
+Setup prompts for settings and creates a new working-directory `.env` without overwriting existing files. API keys are hidden while typing. Shell values override file values. Restart after changing configuration. `doctor` checks settings and SDKs locally; it does not validate account access or send an API request.
+
+Azure needs a key, resource endpoint, and deployment name. API version is optional for v1. OpenAI needs a key; model and compatible base URL are optional. Gemini needs a Google API key. Bedrock needs a region and model/inference-profile ID plus credentials configured through the standard AWS SDK chain.
+
+Budgets default to `GENTIS_MAX_TOKENS=4096` and `GENTIS_ROUTING_MAX_TOKENS=1024`; `GENTIS_TIMEOUT=45` sets the request timeout in seconds. Provider-specific token names are translated, including router calls. For older OpenAI-compatible APIs, set `GENTIS_TOKEN_PARAMETER=max_tokens`. Reasoning models may need a larger completion budget. Keep `.env` out of version control.
+
+## Build An Agent
+
+```bash
+gentis new my-agent --template support
+cd my-agent
+gentis run
+```
+
+Edit `app.py` to change the experts and prompts. The starter runs offline immediately. Configure a provider inside the project directory when ready. The minimal library-only install remains `python -m pip install gentis-ai`.
 
 ## Offline Quickstart
 
@@ -109,7 +137,7 @@ AZURE_OPENAI_DEPLOYMENT or AZURE_OPENAI_MODEL
 ```
 
 The deployment variable must identify an Azure deployment. The application
-never prints configured values and does not load `.env` files.
+never prints configured values and loads the working-directory `.env` with shell values taking precedence.
 
 Try these prompts:
 

@@ -37,3 +37,5 @@ jobs:
         run: gentis eval
       - name: Build
         run: python -m build
+      - name: Test installed demos and starter outside the checkout
+        run: python scripts/check_wheel.py dist/*.whl

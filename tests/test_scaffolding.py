@@ -47,7 +47,7 @@ def load_generated_app(path: Path) -> ModuleType:
 
 
 def test_template_choices_are_stable():
-    assert TEMPLATE_CHOICES == ("basic", "azure-support", "gemini-support")
+    assert TEMPLATE_CHOICES == ("basic", "azure-support", "gemini-support", "support")
 
 
 def test_basic_template_keeps_existing_files(tmp_path: Path):

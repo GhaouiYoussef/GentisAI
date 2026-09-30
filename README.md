@@ -6,7 +6,83 @@ GentisAI is a small Python package for building multi-expert AI agent POCs with 
 
 It is designed for interactive chat, support, sales, copilots, and other workflows where routing should be explicit, fast, and easy to test. GentisAI keeps low orchestration overhead by avoiding hidden manager loops, while still leaving an optional bridge to LangGraph for durable workflows.
 
-## Install
+## Try The Demo First
+
+Python 3.10+ is required. No repository clone or API key is needed:
+
+```bash
+python -m pip install --upgrade "gentis-ai[demo]>=0.2.2"
+gentis demo
+```
+
+The browser opens the **Customer Rescue Command Center**. Click **Customer rescue**, then **Session follow-up** to see expert routing, fictional tools, streaming, and conversation history. Mock mode uses scripted answers; connect a provider to evaluate real language understanding. Stop the server with `Ctrl+C`.
+
+Try the second bundled demo:
+
+```bash
+gentis demo launch-war-room
+```
+
+Already installed `gentis-ai`? Install the `demo` extra with the command above. If `gentis` is not on your PATH, use `python -m gentis_ai demo`. For a busy port, use `gentis demo --port 8502`.
+
+These commands require the 0.2.2 release built from this source. Until it is published, an older PyPI version will not include them. Maintainers can test the built wheel using the instructions under Development.
+
+## Connect Your Provider
+
+Run these commands from the folder where you want to keep your configuration. Choose one provider:
+
+| Provider | Install | Configure |
+| --- | --- | --- |
+| Azure OpenAI | `python -m pip install "gentis-ai[demo,azure]>=0.2.2"` | `gentis configure --provider azure` |
+| OpenAI / compatible API | `python -m pip install "gentis-ai[demo,openai]>=0.2.2"` | `gentis configure --provider openai` |
+| Google Gemini | `python -m pip install "gentis-ai[demo,gemini]>=0.2.2"` | `gentis configure --provider gemini` |
+| AWS Bedrock | `python -m pip install "gentis-ai[demo,bedrock]>=0.2.2"` | `gentis configure --provider bedrock` |
+
+The setup command prompts for the required values, hides API keys as you type, validates settings, and creates a new `.env` in the current directory. It refuses to overwrite an existing file. Then run:
+
+```bash
+gentis doctor
+gentis demo
+```
+
+`doctor` checks local configuration and SDK installation without spending API credits. It cannot verify credentials, model access, network connectivity, or quotas. The first live message uses your provider account.
+
+For Azure, enter the deployment name from your Azure resource. Use a plain endpoint URL such as `https://your-resource.openai.azure.com/`. Leave the API version blank for the v1 API, or supply the version required by your deployment. For Bedrock, configure credentials using the AWS SDK credential chain (for example, `aws configure` or an authenticated `AWS_PROFILE`); enter a region and a Converse-compatible model or inference-profile ID available to your account.
+
+Prefer editing configuration yourself? Create `.env` in the directory where you run the CLI. For example:
+
+```dotenv
+GENTIS_PROVIDER=azure
+AZURE_OPENAI_API_KEY=your-key
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_DEPLOYMENT=your-deployment-name
+```
+
+Keep `.env` out of version control. Shell variables override file values; `gentis demo --provider mock` overrides provider selection for that launch. Restart the demo after changes. Files inside the installed package are never needed for configuration.
+
+Token limits and timeouts have defaults, so you do not need SDK parameter names to get started:
+
+| Setting | Default | Purpose |
+| --- | --- | --- |
+| `GENTIS_MAX_TOKENS` | `4096` | Per-response generation budget |
+| `GENTIS_ROUTING_MAX_TOKENS` | `1024` | Router generation budget |
+| `GENTIS_TIMEOUT` | `45` | Request timeout in seconds; SDK retries can add time |
+
+OpenAI and Azure use `max_completion_tokens`; Gemini uses `max_output_tokens`; Bedrock uses `maxTokens`. Router calls use the same translation. No temperature is forced. For a third-party OpenAI-compatible endpoint that requires the older parameter, set `GENTIS_TOKEN_PARAMETER=max_tokens`. This override applies only to the OpenAI-compatible provider. Reasoning tokens share the OpenAI/Azure completion budget; increase the relevant budget if a response or routing result is cut off. See the [OpenAI parameter reference](https://developers.openai.com/api/reference/python/resources/chat/subresources/completions/methods/create).
+
+## Build Your Own Agent
+
+After trying the demo, create an editable project:
+
+```bash
+gentis new my-agent --template support
+cd my-agent
+gentis run
+```
+
+It runs offline immediately. Edit the experts and system prompts in `app.py`, then run `gentis run` again. To enable a real provider, install its extra and run `gentis configure --provider azure` (or `openai`, `gemini`, `bedrock`) **inside the new project**, followed by `gentis doctor`. The same configuration and token handling power both demos and this starter. Existing project files are never overwritten.
+
+## Core Install
 
 ```bash
 pip install gentis-ai
@@ -56,9 +132,10 @@ print(response.agent_name)
 print(response.content)
 ```
 
-Create a Gemini-backed customer-support project:
+For a provider-specific Gemini customer-support template:
 
 ```bash
+python -m pip install "gentis-ai[gemini]"
 gentis new customer-support-gemini --template gemini-support
 cd customer-support-gemini
 gentis run
@@ -195,7 +272,11 @@ graph = to_langgraph(flow)
 ## CLI
 
 ```bash
-gentis new support-agent
+gentis demo
+gentis configure --provider azure
+gentis doctor
+gentis new support-agent --template support
+cd support-agent
 gentis run
 gentis eval
 gentis bench
@@ -228,60 +309,24 @@ announces the local mock fallback and still runs.
 ## Development
 
 ```bash
-pip install -e ".[dev]"
-python -m pytest
+python -m pip install -e ".[dev]"
+python -m pytest tests demos
+python -m build
+python scripts/check_wheel.py dist/gentis_ai-0.2.2-py3-none-any.whl
 ```
+
+The wheel check creates a temporary virtual environment, reuses installed test dependencies, installs the built wheel, and exercises both demos and a generated agent outside the checkout. To try it manually, install `dist/gentis_ai-0.2.2-py3-none-any.whl[demo]` into a clean virtual environment, change to a directory outside the checkout, and run `gentis demo --provider mock`.
 
 ## Launch Demos
 
-The demos below use the 0.2.1 source checkout. Install from the repository root
-with `python -m pip install -e ".[openai]"` and
-`python -m pip install "streamlit>=1.36,<2"` before running them.
-The published PyPI release may lag this checkout; installing `gentis-ai` alone
-does not install the demo source files.
+- [Customer Rescue](demos/customer_rescue/README.md): hybrid routing, fictional tools, streaming, and session follow-ups. Run `gentis demo`.
+- [Launch War Room](demos/launch_war_room/README.md): contextual product experts and parallel synthesis. Run `gentis demo launch-war-room`.
 
-- `demos/customer_rescue` shows explicit hybrid routing, fictional tool execution, streaming, and session follow-ups.
-- `demos/launch_war_room` shows contextual product-expert routing and parallel synthesis.
-- Both demos support `GENTIS_PROVIDER=mock|openai|gemini|azure`; mock remains the default.
+Both use `GENTIS_PROVIDER=mock|openai|azure|gemini|bedrock`. Mock is the default. Customer tools use fictional data and fixed demo account references.
 
-```bash
-python -m streamlit run demos/customer_rescue/app.py
-python -m streamlit run demos/launch_war_room/app.py
-```
+When upgrading from the source-only demos, put your configuration in the directory where you launch `gentis demo`. App-local configuration beside the old demo scripts is no longer loaded.
 
-Mock mode uses scripted routes and answers, including follow-ups. It demonstrates
-runtime events and stored history; use a real provider to evaluate contextual
-understanding. Customer tools use fictional data and fixed demo account references.
-
-## Azure Configuration
-
-Create a `.env` file with one plain-text assignment per line (URLs must not use
-Markdown link syntax):
-
-```dotenv
-GENTIS_PROVIDER=azure
-AzureOpenAIKey=your-real-azure-key
-AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
-AZURE_OPENAI_DEPLOYMENT_NAME=gpt-5.4-mini
-AZURE_OPENAI_API_VERSION=2025-04-01-preview
-```
-
-The app reads `.env` from the working directory, then its own directory. The
-app-local file overrides working-directory values; shell variables override both.
-Restart the app after changing configuration because the demo caches its provider.
-
-`AZURE_OPENAI_API_KEY` also accepts `AzureOpenAIKey`; `AZURE_OPENAI_ENDPOINT`
-also accepts `AzureOpenAIEndpoint`. Deployment aliases are
-`AZURE_OPENAI_DEPLOYMENT`, `AZURE_OPENAI_DEPLOYMENT_NAME`, and `AZURE_OPENAI_MODEL`
-(in that order). Canonical names win within one source; shell aliases still
-win over file values. A full deployment chat-completions URL is accepted and its
-deployment and `api-version` are extracted when not explicitly configured.
-
-With an API version configured, the adapter uses the versioned Azure SDK client.
-Without one, it retains the `/openai/v1` API. Azure token budgets use
-`max_completion_tokens`, including routing requests.
-
-See `demos/customer_rescue/README.md` for the demo run command.
+Azure accepts `AzureOpenAIKey`, `AzureOpenAIEndpoint`, `AZURE_OPENAI_DEPLOYMENT_NAME`, and `AZURE_OPENAI_MODEL` as aliases. Canonical names win within one source; shell aliases still override file values. A full deployment chat-completions URL is accepted, with deployment and API version extracted when not explicitly set. `GEMINI_API_KEY` is an alias for `GOOGLE_API_KEY`.
 
 ## Deployment Boundaries
 
