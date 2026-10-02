@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gentis-ai"
-version = "0.2.2"
+version = "0.2.3"
 description = "A lightweight package for multi-expert AI agent routing and state management."
 authors = [
   { name="GhaouiYoussef", email="youssefghaoui.pro@gmail.com" },
@@ -77,6 +77,10 @@ namespaces = false
     "templates/Dockerfile",
     "templates/support_bot.py",
     "templates/provider_support.py",
+    "templates/streamlit/*",
+    "templates/streamlit/agents/*.py",
+    "templates/streamlit/prompts/*.md",
+    "templates/streamlit/tools/*.py",
     "templates/azure_support/Dockerfile",
     "templates/azure_support/README.md",
     "templates/azure_support/app.py",

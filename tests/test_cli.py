@@ -125,3 +125,83 @@ def test_run_reports_safe_project_error(tmp_path: Path, capsys, monkeypatch):
 
     assert error.value.code == 1
     assert "manifest is not valid JSON" in capsys.readouterr().err
+
+
+def test_init_and_add_commands_create_registered_components(
+    tmp_path, monkeypatch, capsys
+):
+    monkeypatch.chdir(tmp_path)
+    for command in [
+        ["gentis", "init"],
+        ["gentis", "add", "agent", "billing", "--description", "Handles invoices"],
+        ["gentis", "add", "tool", "lookup_invoice", "--agent", "billing"],
+    ]:
+        with patch.object(sys, "argv", command):
+            main()
+    assert (tmp_path / "agents/billing.py").is_file()
+    assert (tmp_path / "tools/lookup_invoice.py").is_file()
+    manifest = (tmp_path / "gentis.json").read_text()
+    assert "billing" in manifest and "lookup_invoice" in manifest
+    output = capsys.readouterr().out
+    assert "gentis run --ui" in output
+    assert "Added agent billing" in output
+    assert "Added tool lookup_invoice" in output
+
+
+def test_demo_export_does_not_launch_server(tmp_path, capsys):
+    destination = tmp_path / "editable-demo"
+    with (
+        patch.object(
+            sys,
+            "argv",
+            ["gentis", "demo", "customer-rescue", "--export", str(destination)],
+        ),
+        patch("gentis_ai.cli.launch_demo") as launch,
+    ):
+        main()
+    launch.assert_not_called()
+    assert (destination / "gentis.json").is_file()
+    assert "gentis run" in capsys.readouterr().out
+
+
+def test_run_ui_passes_launch_options():
+    with (
+        patch.object(
+            sys, "argv", ["gentis", "run", "--ui", "--port", "8765", "--headless"]
+        ),
+        patch("gentis_ai.cli.run_local_project", return_value=True) as run,
+    ):
+        main()
+    run.assert_called_once_with(ui=True, port=8765, headless=True)
+
+
+def test_run_ui_failure_preserves_server_status(capsys):
+    from gentis_ai.project_runner import ProjectRunError
+
+    with (
+        patch.object(sys, "argv", ["gentis", "run", "--ui"]),
+        patch(
+            "gentis_ai.cli.run_local_project",
+            side_effect=ProjectRunError("Server failed", exit_code=7),
+        ),
+        pytest.raises(SystemExit) as error,
+    ):
+        main()
+    assert error.value.code == 7
+    assert "Server failed" in capsys.readouterr().err
+
+
+def test_configure_existing_file_reports_preservation_and_example(tmp_path, capsys):
+    target = tmp_path / "settings.txt"
+    target.write_text("keep this config")
+    with patch.object(
+        sys,
+        "argv",
+        ["gentis", "configure", "--provider", "mock", "--output", str(target)],
+    ):
+        main()
+    output = capsys.readouterr().out
+    assert "Kept existing" in output
+    assert "settings.txt.example" in output
+    assert "Created" not in output
+    assert target.read_text() == "keep this config"

@@ -1,0 +1,19 @@
+{
+  "template": "streamlit",
+  "entrypoint": "app.py",
+  "ui": "streamlit_app.py",
+  "default_agent": "assistant",
+  "agents": {
+    "assistant": {
+      "module": "agents/assistant.py",
+      "prompt": "prompts/assistant.md",
+      "tools": ["get_started"]
+    }
+  },
+  "tools": {
+    "get_started": {
+      "module": "tools/get_started.py",
+      "function": "get_started"
+    }
+  }
+}

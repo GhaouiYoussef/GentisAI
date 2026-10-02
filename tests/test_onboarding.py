@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -10,7 +11,7 @@ import pytest
 
 from gentis_ai.cli import main
 from gentis_ai.demo import launch_demo
-from gentis_ai.onboarding import configure, doctor
+from gentis_ai.onboarding import configuration_example, configure, doctor
 from gentis_ai.providers import ConfigurationError, ProviderSettings, build_cloud_llm
 from gentis_ai.scaffolding import create_project
 from gentis_ai.llm import OpenAICompatibleLLM
@@ -82,20 +83,138 @@ def test_configure_round_trips_special_characters_without_printing_key(
     answers = iter(["test-model", ""])
     monkeypatch.setattr("builtins.input", lambda _: next(answers))
     target = tmp_path / "test-config.txt"
-    configure("openai", target)
+    assert configure("openai", target) == target
     values = dotenv_values(target, interpolate=False)
     assert values["OPENAI_API_KEY"] == secret
     assert values["GENTIS_PROVIDER"] == "openai"
     assert values["GENTIS_MAX_TOKENS"] == "4096"
     assert secret not in capsys.readouterr().out
+    example = target.with_name(target.name + ".example").read_text(encoding="utf-8")
+    assert secret not in example
+    assert "test-model" not in example
+    assert "OPENAI_API_KEY=''" in example
+    assert "OPENAI_MODEL='gpt-4o-mini'" in example
 
 
-def test_configure_preserves_existing_file(tmp_path):
+def test_configure_preserves_existing_file_without_reading_or_prompting(
+    tmp_path, monkeypatch
+):
     target = tmp_path / "settings.txt"
     target.write_text("existing config", encoding="utf-8")
-    with pytest.raises(ConfigurationError, match="already exists"):
-        configure("mock", target)
+    with monkeypatch.context() as patch:
+        patch.setattr("builtins.input", lambda _: pytest.fail("must not prompt"))
+        patch.setattr(
+            "gentis_ai.onboarding.getpass.getpass",
+            lambda _: pytest.fail("must not prompt"),
+        )
+        patch.setattr(
+            Path,
+            "read_text",
+            lambda *a, **kw: pytest.fail("must not read configuration"),
+        )
+        assert configure("openai", target) == tmp_path / "settings.txt.example"
     assert target.read_text(encoding="utf-8") == "existing config"
+    assert (tmp_path / "settings.txt.example").read_text(
+        encoding="utf-8"
+    ) == configuration_example("openai")
+
+
+@pytest.mark.parametrize("existing_config", [True, False])
+def test_configure_preserves_existing_example(tmp_path, existing_config):
+    target = tmp_path / "settings.txt"
+    example = tmp_path / "settings.txt.example"
+    if existing_config:
+        target.write_text("existing config", encoding="utf-8")
+    example.write_text("custom example", encoding="utf-8")
+    assert configure("mock", target) == (example if existing_config else target)
+    assert example.read_text(encoding="utf-8") == "custom example"
+    assert target.is_file()
+
+
+def test_configure_default_creates_settings_and_example(tmp_path):
+    assert configure("mock") == Path(".env")
+    assert (tmp_path / ".env").is_file()
+    assert (tmp_path / ".env.example").read_text(
+        encoding="utf-8"
+    ) == configuration_example()
+
+
+@pytest.mark.parametrize("provider", ["mock", "openai", "azure", "gemini", "bedrock"])
+def test_configuration_examples_are_static_and_document_runtime_settings(
+    provider, monkeypatch
+):
+    monkeypatch.setenv("OPENAI_API_KEY", "fake-private-key-from-shell")
+    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "fake-private-aws-key")
+    content = configuration_example(provider)
+    assert f"GENTIS_PROVIDER='{provider}'" in content
+    assert "fake-private" not in content
+    assert "GENTIS_MAX_TOKENS='4096'" in content
+    assert "GENTIS_ROUTING_MAX_TOKENS='1024'" in content
+    assert "GENTIS_TIMEOUT='45'" in content
+    assert "timeout in seconds" in content
+
+
+@pytest.mark.parametrize("existing_config", [True, False])
+def test_configure_validates_provider_before_creating_example(
+    tmp_path, existing_config
+):
+    target = tmp_path / "settings.txt"
+    if existing_config:
+        target.write_text("existing config", encoding="utf-8")
+    with pytest.raises(ConfigurationError, match="Unknown provider"):
+        configure("unknown", target)
+    assert not (tmp_path / "settings.txt.example").exists()
+    assert target.exists() is existing_config
+
+
+@pytest.mark.parametrize("directory_target", ["config", "example"])
+def test_configure_rejects_directory_targets_before_writing(tmp_path, directory_target):
+    target = tmp_path / "settings.txt"
+    example = tmp_path / "settings.txt.example"
+    (target if directory_target == "config" else example).mkdir()
+    with pytest.raises(ConfigurationError, match="regular files"):
+        configure("mock", target)
+    assert not (example if directory_target == "config" else target).exists()
+
+
+@pytest.mark.parametrize("link_target", ["config", "example"])
+def test_configure_rejects_symbolic_links(tmp_path, link_target):
+    target = tmp_path / "settings.txt"
+    example = tmp_path / "settings.txt.example"
+    linked_file = tmp_path / "other-settings.txt"
+    linked_file.write_text("preserved", encoding="utf-8")
+    try:
+        (target if link_target == "config" else example).symlink_to(linked_file)
+    except OSError:
+        pytest.skip("Symbolic links are not available on this platform")
+    with pytest.raises(ConfigurationError, match="symbolic links"):
+        configure("mock", target)
+    assert linked_file.read_text(encoding="utf-8") == "preserved"
+    assert not (example if link_target == "config" else target).exists()
+
+
+@pytest.mark.parametrize("race_target", ["config", "example"])
+def test_configure_preserves_files_created_during_setup(
+    tmp_path, monkeypatch, race_target
+):
+    target = tmp_path / "settings.txt"
+    example = tmp_path / "settings.txt.example"
+    competing_path = target if race_target == "config" else example
+    original_open = os.open
+
+    def create_before_open(path, flags, mode):
+        if path == competing_path:
+            with os.fdopen(
+                original_open(path, flags, mode), "w", encoding="utf-8"
+            ) as handle:
+                handle.write("created concurrently")
+        return original_open(path, flags, mode)
+
+    monkeypatch.setattr("gentis_ai.onboarding.os.open", create_before_open)
+    assert configure("mock", target) == (example if race_target == "config" else target)
+    assert competing_path.read_text(encoding="utf-8") == "created concurrently"
+    assert target.is_file()
+    assert example.is_file()
 
 
 def test_configure_invalid_values_do_not_create_file(tmp_path, monkeypatch):
@@ -106,6 +225,7 @@ def test_configure_invalid_values_do_not_create_file(tmp_path, monkeypatch):
     with pytest.raises(ConfigurationError, match="OPENAI_API_KEY"):
         configure("openai", target)
     assert not target.exists()
+    assert not (tmp_path / "settings.txt.example").exists()
 
 
 def test_doctor_is_offline_and_does_not_print_credentials(monkeypatch, capsys):

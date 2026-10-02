@@ -27,6 +27,18 @@ Already installed `gentis-ai`? Install the `demo` extra with the command above. 
 
 These commands require the 0.2.2 release built from this source. Until it is published, an older PyPI version will not include them. Maintainers can test the built wheel using the instructions under Development.
 
+### Make A Demo Your Own
+
+Copy the complete demo into an editable local project:
+
+```bash
+gentis demo customer-rescue --export my-rescue-demo
+cd my-rescue-demo
+gentis run
+```
+
+Use `launch-war-room` to export the other demo. Each export includes the Streamlit app, local agent setup, tools where used, telemetry, tests, requirements, a README, and `.env.example`. Edit `app.py` for the interface and `demo_app/` for the behavior; the exported app imports your local copies. The destination must be new or empty. `gentis run` opens the exported demo in Streamlit; `--port 8502` and `--headless` are available.
+
 ## Connect Your Provider
 
 Run these commands from the folder where you want to keep your configuration. Choose one provider:
@@ -38,7 +50,7 @@ Run these commands from the folder where you want to keep your configuration. Ch
 | Google Gemini | `python -m pip install "gentis-ai[demo,gemini]>=0.2.2"` | `gentis configure --provider gemini` |
 | AWS Bedrock | `python -m pip install "gentis-ai[demo,bedrock]>=0.2.2"` | `gentis configure --provider bedrock` |
 
-The setup command prompts for the required values, hides API keys as you type, validates settings, and creates a new `.env` in the current directory. It refuses to overwrite an existing file. Then run:
+The setup command prompts for the required values, hides API keys as you type, validates settings, and creates a new `.env` in the current directory. It also provides a secret-free `.env.example`. If `.env` already exists, setup preserves it, skips the prompts, and still creates the example if missing. Existing examples are preserved too. With `--output settings.txt`, the example is `settings.txt.example`. Then run:
 
 ```bash
 gentis doctor
@@ -72,15 +84,35 @@ OpenAI and Azure use `max_completion_tokens`; Gemini uses `max_output_tokens`; B
 
 ## Build Your Own Agent
 
-After trying the demo, create an editable project:
+Create a project with separate agents, tools, prompts, and a Streamlit chat app:
 
 ```bash
-gentis new my-agent --template support
+gentis init my-agent
 cd my-agent
-gentis run
+gentis add agent billing --description "Handles invoices and refunds"
+gentis add tool lookup_invoice --agent billing
+gentis run --ui
 ```
 
-It runs offline immediately. Edit the experts and system prompts in `app.py`, then run `gentis run` again. To enable a real provider, install its extra and run `gentis configure --provider azure` (or `openai`, `gemini`, `bedrock`) **inside the new project**, followed by `gentis doctor`. The same configuration and token handling power both demos and this starter. Existing project files are never overwritten.
+Already in your project folder? Run `gentis init` there. Existing configuration and unrelated files are preserved; conflicting source files are reported before generation. `gentis new my-agent --template streamlit` creates the same starter in a new or empty directory. These new scaffolding and export commands require a build containing this change.
+
+```text
+my-agent/
+  agents/             Agent definitions, one Python file per agent
+  tools/              Tool functions, one Python file per tool
+  prompts/            Editable system prompts
+  project.py          Shared build_flow() for terminal and web apps
+  app.py              Terminal chat
+  streamlit_app.py    Streamlit chat with a separate session per browser
+  gentis.json         Registered agents, tools, and app entrypoints
+  .env.example        Configuration placeholders, safe to share
+```
+
+Both add commands register the new component automatically. Edit the generated prompt and tool function, then restart the app to load changes. Starter tools accept `query: str` and run before the selected agent answers, supplying read-only context. Their placeholder output makes unfinished implementations clear. The starter runs offline with mock responses; connect a provider to route natural language by agent descriptions. Use `gentis run` for terminal chat.
+
+To connect your existing Streamlit app, import `build_flow` from the generated `project.py`, keep the flow in `st.session_state`, and call `flow.process_turn(message, session_id=...)` with a unique session ID for each user. `streamlit_app.py` provides a working example. Set the `ui` field in `gentis.json` to your app's relative path to launch it with `gentis run --ui`.
+
+To enable a real provider, install its extra and run `gentis configure --provider azure` (or `openai`, `gemini`, `bedrock`) **inside the project**, followed by `gentis doctor`. The same configuration powers demos and starters. For the original single-file terminal starter, use `gentis new my-agent --template support`. The add commands apply to modular projects created with `init` or the `streamlit` template; exported demos keep their original demo layout for direct editing.
 
 ## Core Install
 
@@ -273,11 +305,14 @@ graph = to_langgraph(flow)
 
 ```bash
 gentis demo
+gentis demo customer-rescue --export my-rescue-demo
 gentis configure --provider azure
 gentis doctor
-gentis new support-agent --template support
+gentis init support-agent
 cd support-agent
-gentis run
+gentis add agent billing --description "Handles invoices and refunds"
+gentis add tool lookup_invoice --agent billing
+gentis run --ui
 gentis eval
 gentis bench
 ```
