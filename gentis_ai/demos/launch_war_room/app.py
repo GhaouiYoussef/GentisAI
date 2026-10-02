@@ -7,6 +7,7 @@ import uuid
 import streamlit as st
 
 from gentis_ai.demos.telemetry import render_trace
+from gentis_ai.demos.getting_started import render_getting_started
 from gentis_ai.observability.logging import configure_logging
 
 configure_logging()
@@ -27,6 +28,7 @@ st.markdown(
     """<style>:root{--paper:#f4f0e6;--ink:#102a35;--signal:#e85d35;--teal:#177e75}.stApp{background:linear-gradient(135deg,#0000 48%,#d9d0bd 49%,#0000 51%) 0 0/42px 42px,var(--paper)}h1,h2,h3{font-family:"Aptos Display","Trebuchet MS",sans-serif}.hero{border:1px solid var(--ink);background:#fbf8f0;padding:1.2rem;box-shadow:7px 7px 0 var(--ink)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:1rem 0}.card{border:1px solid var(--ink);background:#fbf8f0;padding:.8rem;font-weight:700;text-transform:uppercase}.card.on{background:var(--teal);color:#fff;box-shadow:3px 3px 0 var(--ink)}.trace{border-left:4px solid var(--signal);background:#fff;padding:.5rem;margin:.35rem 0;font-family:Consolas,monospace;font-size:.78rem}@media(max-width:760px){.grid{grid-template-columns:repeat(2,1fr)}}</style>""",
     unsafe_allow_html=True,
 )
+render_getting_started("launch-war-room")
 
 if "war_flow" not in st.session_state:
     try:

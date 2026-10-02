@@ -1,0 +1,1 @@
+gentis-ai[demo]>=0.2.2

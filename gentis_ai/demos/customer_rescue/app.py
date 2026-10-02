@@ -7,6 +7,7 @@ import uuid
 import streamlit as st
 
 from gentis_ai.demos.customer_rescue.gentis_setup import EXPERT_LABELS, SCENARIOS, build_flow
+from gentis_ai.demos.getting_started import render_getting_started
 from gentis_ai.demos.telemetry import render_trace
 from gentis_ai.observability.logging import configure_logging
 
@@ -30,6 +31,7 @@ h1,h2,h3{font-family:"Aptos Display","Trebuchet MS",sans-serif;letter-spacing:-.
 </style>""",
     unsafe_allow_html=True,
 )
+render_getting_started("customer-rescue")
 
 
 def initialize_state() -> None:

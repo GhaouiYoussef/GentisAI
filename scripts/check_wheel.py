@@ -15,6 +15,9 @@ def probe() -> None:
     from importlib import resources
     import gentis_ai
     from streamlit.testing.v1 import AppTest
+    from gentis_ai.demo import DEMO_CHOICES, export_demo
+    from gentis_ai.project_runtime import build_project_flow
+    from gentis_ai.scaffolding import add_agent, add_tool, init_project
 
     assert Path(gentis_ai.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())
     for demo, button, expected in [
@@ -30,6 +33,40 @@ def probe() -> None:
             assert any(expected in item.value for item in app.markdown)
         print(f"Installed {demo}: UI and scenario passed.")
 
+    for name in DEMO_CHOICES:
+        root = export_demo(name, Path.cwd() / name)
+        sys.path.insert(0, str(root))
+        try:
+            app = AppTest.from_file(str(root / "app.py"), default_timeout=30).run()
+            assert not app.exception and not app.error
+        finally:
+            sys.path.pop(0)
+            for module in list(sys.modules):
+                if module == "demo_app" or module.startswith("demo_app."):
+                    del sys.modules[module]
+        print(f"Installed {name}: exported files and local UI passed.")
+
+    project = init_project(Path.cwd() / "modular-project")
+    add_agent("billing", root=project)
+    add_tool("lookup_invoice", root=project, agent="billing")
+    flow = build_project_flow(project, environment={})
+    flow.session_store.save(flow.session_store.get("billing-test", "billing"))
+    response = flow.process_turn("Invoice help", session_id="billing-test")
+    assert response.agent_name == "billing"
+    assert response.structured["tools"][0]["name"] == "lookup_invoice"
+    sys.path.insert(0, str(project))
+    try:
+        app = AppTest.from_file(
+            str(project / "streamlit_app.py"), default_timeout=30
+        ).run()
+        assert not app.exception and not app.error
+        app.chat_input[0].set_value("Hello").run()
+        assert not app.exception and not app.error
+    finally:
+        sys.path.pop(0)
+        sys.modules.pop("project", None)
+    print("Installed modular starter: agent, tool, and Streamlit chat passed.")
+
 
 def check(wheel: Path) -> None:
     wheel = wheel.resolve()
@@ -37,6 +74,10 @@ def check(wheel: Path) -> None:
         names = archive.namelist()
         assert "gentis_ai/demos/customer_rescue/app.py" in names
         assert "gentis_ai/demos/launch_war_room/app.py" in names
+        assert "gentis_ai/templates/streamlit/streamlit_app.py" in names
+        assert "gentis_ai/templates/streamlit/agents/assistant.py" in names
+        assert "gentis_ai/templates/streamlit/prompts/assistant.md" in names
+        assert "gentis_ai/templates/streamlit/tools/get_started.py" in names
         assert not any(Path(name).name == ".env" for name in names)
     environment = dict(os.environ)
     environment.pop("PYTHONPATH", None)
@@ -87,6 +128,31 @@ def check(wheel: Path) -> None:
             timeout=30,
         )
         assert "support: I can help" in output.stdout
+        run([str(console), "init", "cli-project"])
+        run([str(console), "add", "agent", "billing", "--project", "cli-project"])
+        run(
+            [
+                str(console),
+                "add",
+                "tool",
+                "lookup_invoice",
+                "--agent",
+                "billing",
+                "--project",
+                "cli-project",
+            ]
+        )
+        output = subprocess.run(
+            [str(console), "run"],
+            cwd=root / "cli-project",
+            env=environment,
+            input="/agent billing\nInvoice help\nexit\n",
+            text=True,
+            capture_output=True,
+            check=True,
+            timeout=30,
+        )
+        assert "billing:" in output.stdout
         print("Installed CLI and generated project passed outside the checkout.")
 
 
