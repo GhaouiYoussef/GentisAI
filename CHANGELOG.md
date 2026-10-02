@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.31
+
+- Export complete, editable Streamlit demos with `gentis demo --export`.
+- Scaffold modular agents, tools, prompts, and a Streamlit app with `gentis init`.
+- Register new components with `gentis add agent` and `gentis add tool`.
+- Launch local Streamlit apps with `gentis run --ui`.
+- Provide a secret-free `.env.example` while preserving existing configuration.
+- Add in-app CLI guidance, immediate component reloads, and generated-project tests.
+- Verify exported demos and modular starters from the installed wheel.
+
 ## 0.2.1
 
 - Load local .env settings in demos and provider templates with shell overrides.

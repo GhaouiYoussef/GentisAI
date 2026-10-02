@@ -52,7 +52,7 @@ def create_project(name: str, template: str = "basic") -> Path:
             '{"template": "support", "entrypoint": "app.py"}\n', encoding="utf-8"
         )
         (root / "requirements.txt").write_text(
-            "gentis-ai>=0.2.2\npython-dotenv>=1.0.0\n", encoding="utf-8"
+            "gentis-ai>=0.2.31\npython-dotenv>=1.0.0\n", encoding="utf-8"
         )
         (root / ".gitignore").write_text(
             ".env\n.env.*\n!.env.example\n__pycache__/\n.venv/\n", encoding="utf-8"

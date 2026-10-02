@@ -11,7 +11,7 @@ It is designed for interactive chat, support, sales, copilots, and other workflo
 Python 3.10+ is required. No repository clone or API key is needed:
 
 ```bash
-python -m pip install --upgrade "gentis-ai[demo]>=0.2.2"
+python -m pip install --upgrade "gentis-ai[demo]>=0.2.31"
 gentis demo
 ```
 
@@ -25,7 +25,7 @@ gentis demo launch-war-room
 
 Already installed `gentis-ai`? Install the `demo` extra with the command above. If `gentis` is not on your PATH, use `python -m gentis_ai demo`. For a busy port, use `gentis demo --port 8502`.
 
-These commands require the 0.2.2 release built from this source. Until it is published, an older PyPI version will not include them. Maintainers can test the built wheel using the instructions under Development.
+These commands require the 0.2.31 release built from this source. Until it is published, an older PyPI version will not include them. Maintainers can test the built wheel using the instructions under Development.
 
 ### Make A Demo Your Own
 
@@ -45,10 +45,10 @@ Run these commands from the folder where you want to keep your configuration. Ch
 
 | Provider | Install | Configure |
 | --- | --- | --- |
-| Azure OpenAI | `python -m pip install "gentis-ai[demo,azure]>=0.2.2"` | `gentis configure --provider azure` |
-| OpenAI / compatible API | `python -m pip install "gentis-ai[demo,openai]>=0.2.2"` | `gentis configure --provider openai` |
-| Google Gemini | `python -m pip install "gentis-ai[demo,gemini]>=0.2.2"` | `gentis configure --provider gemini` |
-| AWS Bedrock | `python -m pip install "gentis-ai[demo,bedrock]>=0.2.2"` | `gentis configure --provider bedrock` |
+| Azure OpenAI | `python -m pip install "gentis-ai[demo,azure]>=0.2.31"` | `gentis configure --provider azure` |
+| OpenAI / compatible API | `python -m pip install "gentis-ai[demo,openai]>=0.2.31"` | `gentis configure --provider openai` |
+| Google Gemini | `python -m pip install "gentis-ai[demo,gemini]>=0.2.31"` | `gentis configure --provider gemini` |
+| AWS Bedrock | `python -m pip install "gentis-ai[demo,bedrock]>=0.2.31"` | `gentis configure --provider bedrock` |
 
 The setup command prompts for the required values, hides API keys as you type, validates settings, and creates a new `.env` in the current directory. It also provides a secret-free `.env.example`. If `.env` already exists, setup preserves it, skips the prompts, and still creates the example if missing. Existing examples are preserved too. With `--output settings.txt`, the example is `settings.txt.example`. Then run:
 
@@ -347,10 +347,10 @@ announces the local mock fallback and still runs.
 python -m pip install -e ".[dev]"
 python -m pytest tests demos
 python -m build
-python scripts/check_wheel.py dist/gentis_ai-0.2.2-py3-none-any.whl
+python scripts/check_wheel.py dist/gentis_ai-0.2.31-py3-none-any.whl
 ```
 
-The wheel check creates a temporary virtual environment, reuses installed test dependencies, installs the built wheel, and exercises both demos and a generated agent outside the checkout. To try it manually, install `dist/gentis_ai-0.2.2-py3-none-any.whl[demo]` into a clean virtual environment, change to a directory outside the checkout, and run `gentis demo --provider mock`.
+The wheel check creates a temporary virtual environment, reuses installed test dependencies, installs the built wheel, and exercises both demos and a generated agent outside the checkout. To try it manually, install `dist/gentis_ai-0.2.31-py3-none-any.whl[demo]` into a clean virtual environment, change to a directory outside the checkout, and run `gentis demo --provider mock`.
 
 ## Launch Demos
 

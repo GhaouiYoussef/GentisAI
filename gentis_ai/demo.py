@@ -54,7 +54,7 @@ def export_demo(name: str, destination: str | Path) -> Path:
                 {"template": name, "entrypoint": "app.py", "runtime": "streamlit"},
                 indent=2,
             ) + "\n",
-            "requirements.txt": "gentis-ai[demo]>=0.2.2\n",
+            "requirements.txt": "gentis-ai[demo]>=0.2.31\n",
             ".gitignore": ".env\n.env.*\n!.env.example\n__pycache__/\n.pytest_cache/\n.venv/\n",
             ".env.example": configuration_example("mock"),
             "README.md": _export_readme(name),
