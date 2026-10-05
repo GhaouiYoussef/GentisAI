@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.32
+
+- Assign demo tools explicitly per agent, with ticket creation initially limited
+  to Technical Support. Grant Billing the same tool by editing `AGENT_TOOLS`.
+- Create new demo ticket IDs from the actual customer issue and ground offline
+  replies in successful tool results, including clear missing-tool messages.
+- Add an agent selector and visible assignments for permission demonstrations.
+- Load optional provider SDKs only when requested, reducing demo and CLI startup.
+- Cover ticket permissions, agent reassignment, Streamlit interaction, and lazy
+  provider imports with regression tests.
+
 ## 0.2.31
 
 - Export complete, editable Streamlit demos with `gentis demo --export`.

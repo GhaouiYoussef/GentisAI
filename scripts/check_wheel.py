@@ -21,7 +21,7 @@ def probe() -> None:
 
     assert Path(gentis_ai.__file__).resolve().is_relative_to(Path(sys.prefix).resolve())
     for demo, button, expected in [
-        ("customer_rescue", "Customer rescue", "duplicate-charge"),
+        ("customer_rescue", "Customer rescue", "Created demo ticket"),
         ("launch_war_room", "Launch hooks", "Route every question"),
     ]:
         app_path = resources.files("gentis_ai.demos").joinpath(demo, "app.py")

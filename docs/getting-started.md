@@ -2,10 +2,10 @@
 
 ## Run The Demo
 
-Use Python 3.10+ and GentisAI 0.2.31 or newer. No clone or API key is required:
+Use Python 3.10+ and GentisAI 0.2.32 or newer. No clone or API key is required:
 
 ```bash
-python -m pip install --upgrade "gentis-ai[demo]>=0.2.31"
+python -m pip install --upgrade "gentis-ai[demo]>=0.2.32"
 gentis demo
 ```
 
@@ -26,7 +26,7 @@ Use `launch-war-room` for the other demo. The exported project includes `app.py`
 Choose the matching extra and provider name: `azure`, `openai`, `gemini`, or `bedrock`. For example:
 
 ```bash
-python -m pip install "gentis-ai[demo,azure]>=0.2.31"
+python -m pip install "gentis-ai[demo,azure]>=0.2.32"
 gentis configure --provider azure
 gentis doctor
 gentis demo

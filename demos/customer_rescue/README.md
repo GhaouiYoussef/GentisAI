@@ -7,7 +7,23 @@ python -m pip install --upgrade "gentis-ai[demo]>=0.2.2"
 gentis demo
 ```
 
-Click Customer rescue, then Session follow-up. Mock mode is the default and uses scripted answers. Use a real provider to evaluate contextual understanding.
+Click Customer rescue, then Session follow-up. Mock mode uses scripted routing and
+replies grounded in the tool results. Use a live provider for contextual understanding.
+
+For the permission demo, export with `gentis demo customer-rescue --export my-demo`
+and run `gentis run` inside that folder. Choose Billing in the Agent sidebar and ask
+for a ticket. It cannot create one until you change `AGENT_TOOLS` in
+`demo_app/gentis_setup.py` to include:
+
+```python
+"billing": ("check_invoice", "create_support_ticket"),
+```
+
+Restart the app and repeat. Any agent can receive this tool; only Technical Support
+has it initially. Each ticket gets a new ID and uses the customer's actual message
+as its issue. The selected agents run their assigned tools once per turn, and shared
+tools run only once. These are local demo tickets, not external help desk records.
+Account lookup returns only Youssef Ghaoui, and the invoice stays static.
 
 For Azure, for example:
 

@@ -26,6 +26,7 @@ def test_export_contains_editable_project_and_offline_check(name, tmp_path, monk
     }
     if name == "customer-rescue":
         expected.add("demo_app/tools.py")
+        expected.add("demo_app/mock.py")
     assert {file.relative_to(project).as_posix() for file in project.rglob("*") if file.is_file()} == expected
     assert json.loads((project / "gentis.json").read_text()) == {
         "template": name, "entrypoint": "app.py", "runtime": "streamlit",

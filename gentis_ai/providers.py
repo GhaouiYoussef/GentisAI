@@ -10,14 +10,15 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from gentis_ai.config import AzureSettings, load_environment, normalize_environment
-from gentis_ai.llm import (
-    AzureOpenAILLM,
-    BaseLLM,
-    BedrockLLM,
-    GeminiLLM,
-    MockLLM,
-    OpenAICompatibleLLM,
-)
+from gentis_ai import llm as llm_providers
+from gentis_ai.llm import BaseLLM, MockLLM
+
+
+def __getattr__(name: str):
+    # Preserve the provider factory patch points without importing every SDK.
+    if name in llm_providers._PROVIDERS:
+        return getattr(llm_providers, name)
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
 PROVIDER_CHOICES = ("mock", "openai", "azure", "gemini", "bedrock")
@@ -176,14 +177,17 @@ def build_cloud_llm(
         load_environment() if environment is None else environment, provider
     )
     factories = {
-        "azure": azure_factory or AzureOpenAILLM,
-        "openai": openai_factory or OpenAICompatibleLLM,
-        "gemini": gemini_factory or GeminiLLM,
-        "bedrock": bedrock_factory or BedrockLLM,
+        "azure": (azure_factory, "AzureOpenAILLM"),
+        "openai": (openai_factory, "OpenAICompatibleLLM"),
+        "gemini": (gemini_factory, "GeminiLLM"),
+        "bedrock": (bedrock_factory, "BedrockLLM"),
     }
     if settings.provider == "mock":
         raise ConfigurationError("Use build_llm for the mock provider.")
-    llm = factories[settings.provider](**settings.options)
+    factory, class_name = factories[settings.provider]
+    if factory is None:
+        factory = globals().get(class_name) or getattr(llm_providers, class_name)
+    llm = factory(**settings.options)
     label = {
         "azure": "Azure OpenAI",
         "openai": "OpenAI",

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from functools import partial
 
 from gentis_ai import Expert, Flow, Router, ToolCall
 from gentis_ai.config import load_environment
-from gentis_ai.llm import MockLLM
 from gentis_ai.tools import ToolExecutor, ToolRegistry
+from gentis_ai.demos.customer_rescue.mock import RescueMockLLM
 
 from gentis_ai.providers import ProviderFactory, ProviderSettings, build_cloud_llm
 from gentis_ai.demos.customer_rescue.tools import (
@@ -36,31 +37,34 @@ EXPERT_DESCRIPTIONS = {
     "technical_support": "Diagnoses crashes, errors, and incidents.",
     "billing": "Handles invoices, duplicate charges, and refunds.",
     "sales": "Handles plans, upgrades, and purchase questions.",
-    "account_security": "Handles suspicious access and account protection.",
+    "account_security": "Looks up the customer's name and handles account protection.",
     "customer_retention": "Handles cancellations and customer recovery.",
     "customer_rescue_lead": "Synthesizes multi-expert customer rescue plans.",
 }
 
 
-def rescue_tool_policy(message, decision):
-    selected = set(decision.experts)
-    calls = []
-    if "billing" in selected:
-        calls.append(
-            ToolCall(name="check_invoice", arguments={"invoice_ref": "INV-2048"})
-        )
-    if "technical_support" in selected:
-        calls.append(
-            ToolCall(
-                name="create_support_ticket",
-                arguments={"account_ref": "ACCT-1042", "issue": "Application crash"},
-            )
-        )
-    if "account_security" in selected:
-        calls.append(
-            ToolCall(name="lookup_account", arguments={"account_ref": "ACCT-1042"})
-        )
-    return calls
+# Edit this mapping, then restart the demo to change each agent's capabilities.
+AGENT_TOOLS = {
+    "technical_support": ("create_support_ticket",),
+    "billing": ("check_invoice",),
+    "sales": (),
+    "account_security": ("lookup_account",),
+    "customer_retention": (),
+    "customer_rescue_lead": (),
+}
+
+
+def rescue_tool_policy(message, decision, *, agent_tools=None):
+    attachments = AGENT_TOOLS if agent_tools is None else agent_tools
+    names = dict.fromkeys(
+        name for agent in decision.experts for name in attachments.get(agent, ())
+    )
+    arguments = {
+        "check_invoice": {"invoice_ref": "INV-2048"},
+        "lookup_account": {"account_ref": "ACCT-1042"},
+        "create_support_ticket": {"account_ref": "ACCT-1042", "issue": message},
+    }
+    return [ToolCall(name=name, arguments=arguments[name]) for name in names]
 
 
 def _build_llm(
@@ -69,7 +73,7 @@ def _build_llm(
     **provider_factories: ProviderFactory,
 ):
     if provider == "mock":
-        return MockLLM(
+        return RescueMockLLM(
             routing_rules={
                 "charged twice": ["billing", "technical_support", "customer_retention"],
                 "which invoice": "billing",
@@ -79,13 +83,6 @@ def _build_llm(
                 "suspicious": "account_security",
                 "cancel": "customer_retention",
             },
-            responses={
-                "charged twice": "We confirmed the duplicate-charge review, opened a crash ticket, and prepared a retention follow-up.",
-                "which invoice": "We checked INV-2048. Billing will review the duplicate charge while support follows the crash ticket.",
-                "invoice": "Invoice INV-2048 is marked for duplicate-charge review.",
-                "crash": "A fictional support ticket is ready for investigation.",
-            },
-            default_response="The rescue lead can coordinate the next best action.",
         ), "MockLLM"
     return build_cloud_llm(
         provider,
@@ -98,13 +95,41 @@ def build_flow(provider: str | None = None) -> tuple[Flow, str]:
     environment = load_environment()
     settings = ProviderSettings.from_environment(environment, provider)
     llm, label = _build_llm(settings.provider, environment)
+    attachments = {name: tuple(names) for name, names in AGENT_TOOLS.items()}
     experts = {
-        name: Expert(name=name, description=desc)
+        name: Expert(
+            name=name,
+            description=desc,
+            system_prompt=(
+                f"You are {name}. {desc}\n"
+                f"Assigned application tools: {', '.join(attachments.get(name, ())) or 'none'}.\n"
+                + (
+                    "You can create demo tickets using create_support_ticket.\n"
+                    if "create_support_ticket" in attachments.get(name, ()) else
+                    "You cannot create tickets: create_support_ticket is not assigned to you.\n"
+                )
+                + "Only report a ticket as created when a successful verified tool result "
+                "contains its ticket_id. Never invent a ticket, account data, or an action. "
+                "Other agents' permissions do not grant you access. If asked to create "
+                "a ticket without access, explain the missing tool assignment. "
+                "Tool results describe simulated demo actions, not an external help desk."
+            ),
+        )
         for name, desc in EXPERT_DESCRIPTIONS.items()
     }
+    if isinstance(llm, RescueMockLLM):
+        llm.tools_by_prompt = {
+            expert.system_prompt: attachments.get(name, ())
+            for name, expert in experts.items()
+        }
     registry = ToolRegistry()
     for tool in (lookup_account, check_invoice, create_support_ticket):
         registry.register(tool)
+    for name, names in attachments.items():
+        if name not in experts:
+            raise ValueError(f"Unknown agent in AGENT_TOOLS: {name}")
+        for tool_name in names:
+            registry.get(tool_name)
     router = Router(
         list(experts.values()), llm=llm, routing_max_tokens=settings.routing_max_tokens, default_expert=experts["customer_rescue_lead"]
     )
@@ -113,5 +138,5 @@ def build_flow(provider: str | None = None) -> tuple[Flow, str]:
         llm,
         parallel_execution=True,
         tool_executor=ToolExecutor(registry, max_tool_calls=3, timeout_seconds=2.0),
-        tool_policy=rescue_tool_policy,
+        tool_policy=partial(rescue_tool_policy, agent_tools=attachments),
     ), label

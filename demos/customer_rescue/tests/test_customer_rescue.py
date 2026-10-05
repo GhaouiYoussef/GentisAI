@@ -6,12 +6,13 @@ from demos.customer_rescue.tools import (
 )
 
 
-def test_fictional_tools_are_deterministic():
-    assert lookup_account("ACCT-1042")["plan"] == "Pro"
+def test_static_lookups_and_new_issue_tickets():
+    assert lookup_account("ACCT-1042") == {"customer": "Youssef Ghaoui"}
     assert check_invoice("INV-2048")["duplicate_charge"] is True
     first = create_support_ticket("ACCT-1042", "Application crash")
     second = create_support_ticket("ACCT-1042", "Application crash")
-    assert first["ticket_id"] == second["ticket_id"]
+    assert first["ticket_id"] != second["ticket_id"]
+    assert first["issue"] == "Application crash"
 
 
 def test_single_route_selects_billing():

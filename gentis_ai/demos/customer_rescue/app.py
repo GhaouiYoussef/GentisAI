@@ -6,7 +6,7 @@ import uuid
 
 import streamlit as st
 
-from gentis_ai.demos.customer_rescue.gentis_setup import EXPERT_LABELS, SCENARIOS, build_flow
+from gentis_ai.demos.customer_rescue.gentis_setup import AGENT_TOOLS, EXPERT_LABELS, SCENARIOS, build_flow
 from gentis_ai.demos.getting_started import render_getting_started
 from gentis_ai.demos.telemetry import render_trace
 from gentis_ai.observability.logging import configure_logging
@@ -58,7 +58,23 @@ except Exception:
     logger.exception("Customer Rescue provider setup failed")
     st.error("Provider setup failed. Check the selected provider configuration and try again.")
     st.stop()
-st.caption("Fictional customer data and tools. MockLLM uses scripted routes and answers.")
+st.caption("Demo data and tickets. Offline mode uses scripted routes and runs the selected agents' assigned tools.")
+with st.sidebar:
+    selected_agent = st.selectbox(
+        "Agent",
+        ["auto", *EXPERT_LABELS],
+        format_func=lambda name: "Automatic routing" if name == "auto" else EXPERT_LABELS[name],
+        key="rescue_agent",
+        on_change=new_session,
+    )
+    st.caption("Select an agent to demonstrate its tool permissions directly.")
+    with st.expander("Agent tools", expanded=True):
+        for name, label in EXPERT_LABELS.items():
+            st.write(f"{label}: {', '.join(AGENT_TOOLS.get(name, ())) or 'No tools'}")
+    st.caption(
+        "To enable Billing tickets, add create_support_ticket to billing in "
+        "AGENT_TOOLS in gentis_setup.py, then restart the demo."
+    )
 st.markdown(
     f"""<div class="mast"><div class="eyebrow">GentisAI / Live routing demo</div><h1>Customer Rescue Command Center</h1><div class="badges"><span class="badge">{st.session_state.rescue_provider}</span><span class="badge">Session {st.session_state.rescue_session_id}</span></div></div>""",
     unsafe_allow_html=True,
@@ -119,6 +135,13 @@ with chat:
             render_cards()
             render_trace(trace_panel, timeline)
             final = None
+            flow = st.session_state.rescue_flow
+            if selected_agent != "auto":
+                routing_llm = flow.router.llm
+                flow.router.llm = None
+                state = flow.session_store.get(st.session_state.rescue_session_id, selected_agent)
+                state.current_expert = selected_agent
+                flow.session_store.save(state)
             try:
                 for event in st.session_state.rescue_flow.stream_turn(
                     prompt, session_id=st.session_state.rescue_session_id
@@ -149,6 +172,9 @@ with chat:
                 logger.exception("Customer Rescue request failed")
                 placeholder.empty()
                 st.error("The request could not be completed. Please try again.")
+            finally:
+                if selected_agent != "auto":
+                    flow.router.llm = routing_llm
             if final is not None:
                 text = final.content
                 placeholder.markdown(text)

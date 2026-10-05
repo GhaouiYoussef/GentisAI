@@ -88,6 +88,7 @@ class Router:
                             current_expert_name,
                             recent_history or [],
                         ),
+                        metadata={"phase": "routing"},
                     )
                 ],
                 max_tokens=self.routing_max_tokens,
