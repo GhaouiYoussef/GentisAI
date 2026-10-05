@@ -258,7 +258,11 @@ class Flow:
         response_text = ""
         try:
             raw = self.llm.generate(
-                messages=[Message(role="user", content=synthesis_input)],
+                messages=[Message(
+                    role="user",
+                    content=synthesis_input,
+                    metadata={"phase": "synthesis", "expert_opinions": opinions},
+                )],
                 system_prompt=synthesizer.system_prompt,
                 stream=True,
             )
@@ -363,7 +367,11 @@ class Flow:
         messages = state.history.copy()
         context = self._tool_context(tool_results)
         content = message if not context else f"{context}\n\nUser request:\n{message}"
-        messages.append(Message(role="user", content=content))
+        messages.append(Message(
+            role="user",
+            content=content,
+            metadata={"tool_results": [self._tool_result_data(result) for result in tool_results]},
+        ))
         return messages
 
     async def aprocess_turn(

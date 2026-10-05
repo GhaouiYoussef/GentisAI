@@ -54,7 +54,7 @@ def export_demo(name: str, destination: str | Path) -> Path:
                 {"template": name, "entrypoint": "app.py", "runtime": "streamlit"},
                 indent=2,
             ) + "\n",
-            "requirements.txt": "gentis-ai[demo]>=0.2.31\n",
+            "requirements.txt": "gentis-ai[demo]>=0.2.32\n",
             ".gitignore": ".env\n.env.*\n!.env.example\n__pycache__/\n.pytest_cache/\n.venv/\n",
             ".env.example": configuration_example("mock"),
             "README.md": _export_readme(name),
@@ -77,8 +77,17 @@ def _export_readme(name: str) -> str:
     )
     tools_guidance = (
         "Edit `demo_app/tools.py` to change the fictional tool implementations. "
-        "Register additional callables in `build_flow()` and select calls in "
-        "`rescue_tool_policy()` in `demo_app/gentis_setup.py`.\n\n"
+        "Only Technical Support has ticket access initially. Select Billing in the "
+        "Agent sidebar and ask for a ticket to show that it cannot create one. "
+        "Then edit `AGENT_TOOLS` in `demo_app/gentis_setup.py`:\n\n"
+        "```python\n\"billing\": (\"check_invoice\", \"create_support_ticket\"),\n```\n\n"
+        "Restart Streamlit, select Billing, and repeat the request. The ticket now "
+        "has a new ID and the actual customer message as its issue. Any agent can "
+        "receive this assignment. Selected agents run their assigned tools once "
+        "per turn; shared tools are deduplicated. Account lookup returns only "
+        "Youssef Ghaoui, and invoice data stays static. Tickets are simulated; they "
+        "are not stored in an external help desk. Register additional callables "
+        "in `build_flow()` and configure arguments in `rescue_tool_policy()`.\n\n"
         if name == "customer-rescue" else
         "This demo has no tools by default. Register your callables in a `ToolRegistry`, "
         "wrap it in a `ToolExecutor`, and supply that executor and a `tool_policy` to "

@@ -11,11 +11,11 @@ It is designed for interactive chat, support, sales, copilots, and other workflo
 Python 3.10+ is required. No repository clone or API key is needed:
 
 ```bash
-python -m pip install --upgrade "gentis-ai[demo]>=0.2.31"
+python -m pip install --upgrade "gentis-ai[demo]>=0.2.32"
 gentis demo
 ```
 
-The browser opens the **Customer Rescue Command Center**. Click **Customer rescue**, then **Session follow-up** to see expert routing, fictional tools, streaming, and conversation history. Mock mode uses scripted answers; connect a provider to evaluate real language understanding. Stop the server with `Ctrl+C`.
+The browser opens the **Customer Rescue Command Center**. Click **Customer rescue**, then **Session follow-up** to see expert routing, demo tools, streaming, and conversation history. Offline routing is scripted; replies show actual demo tool results. Connect a provider to evaluate real language understanding. Stop the server with `Ctrl+C`.
 
 Try the second bundled demo:
 
@@ -25,7 +25,7 @@ gentis demo launch-war-room
 
 Already installed `gentis-ai`? Install the `demo` extra with the command above. If `gentis` is not on your PATH, use `python -m gentis_ai demo`. For a busy port, use `gentis demo --port 8502`.
 
-These commands require the 0.2.31 release built from this source. Until it is published, an older PyPI version will not include them. Maintainers can test the built wheel using the instructions under Development.
+These commands require the 0.2.32 release built from this source. Until it is published, an older PyPI version will not include them. Maintainers can test the built wheel using the instructions under Development.
 
 ### Make A Demo Your Own
 
@@ -39,16 +39,38 @@ gentis run
 
 Use `launch-war-room` to export the other demo. Each export includes the Streamlit app, local agent setup, tools where used, telemetry, tests, requirements, a README, and `.env.example`. Edit `app.py` for the interface and `demo_app/` for the behavior; the exported app imports your local copies. The destination must be new or empty. `gentis run` opens the exported demo in Streamlit; `--port 8502` and `--headless` are available.
 
+### Demonstrate Tool Permissions
+
+In Customer Rescue, choose **Billing** from the **Agent** sidebar and ask it to
+create a ticket for a missing refund. Billing initially has only `check_invoice`,
+so it cannot create tickets. Technical Support initially has `create_support_ticket`.
+
+In your exported `demo_app/gentis_setup.py`, change Billing's `AGENT_TOOLS` entry:
+
+```python
+"billing": ("check_invoice", "create_support_ticket"),
+```
+
+Restart `gentis run`, select Billing, and repeat the request. Billing now creates
+a demo ticket with a new ID and your message as the issue. The same assignment
+works for any agent. Tools run once per selected-agent turn, with shared tools
+deduplicated. **Automatic routing** restores the multi-agent scenarios.
+
+Account lookup returns only `{"customer": "Youssef Ghaoui"}`. Invoice data is static.
+Tickets are generated locally for the demo; they are not saved to an external
+help desk. Live responses are instructed to report creation only from successful
+tool results. Provider SDKs load on demand, so unused providers do not delay startup.
+
 ## Connect Your Provider
 
 Run these commands from the folder where you want to keep your configuration. Choose one provider:
 
 | Provider | Install | Configure |
 | --- | --- | --- |
-| Azure OpenAI | `python -m pip install "gentis-ai[demo,azure]>=0.2.31"` | `gentis configure --provider azure` |
-| OpenAI / compatible API | `python -m pip install "gentis-ai[demo,openai]>=0.2.31"` | `gentis configure --provider openai` |
-| Google Gemini | `python -m pip install "gentis-ai[demo,gemini]>=0.2.31"` | `gentis configure --provider gemini` |
-| AWS Bedrock | `python -m pip install "gentis-ai[demo,bedrock]>=0.2.31"` | `gentis configure --provider bedrock` |
+| Azure OpenAI | `python -m pip install "gentis-ai[demo,azure]>=0.2.32"` | `gentis configure --provider azure` |
+| OpenAI / compatible API | `python -m pip install "gentis-ai[demo,openai]>=0.2.32"` | `gentis configure --provider openai` |
+| Google Gemini | `python -m pip install "gentis-ai[demo,gemini]>=0.2.32"` | `gentis configure --provider gemini` |
+| AWS Bedrock | `python -m pip install "gentis-ai[demo,bedrock]>=0.2.32"` | `gentis configure --provider bedrock` |
 
 The setup command prompts for the required values, hides API keys as you type, validates settings, and creates a new `.env` in the current directory. It also provides a secret-free `.env.example`. If `.env` already exists, setup preserves it, skips the prompts, and still creates the example if missing. Existing examples are preserved too. With `--output settings.txt`, the example is `settings.txt.example`. Then run:
 
@@ -347,10 +369,10 @@ announces the local mock fallback and still runs.
 python -m pip install -e ".[dev]"
 python -m pytest tests demos
 python -m build
-python scripts/check_wheel.py dist/gentis_ai-0.2.31-py3-none-any.whl
+python scripts/check_wheel.py dist/gentis_ai-0.2.32-py3-none-any.whl
 ```
 
-The wheel check creates a temporary virtual environment, reuses installed test dependencies, installs the built wheel, and exercises both demos and a generated agent outside the checkout. To try it manually, install `dist/gentis_ai-0.2.31-py3-none-any.whl[demo]` into a clean virtual environment, change to a directory outside the checkout, and run `gentis demo --provider mock`.
+The wheel check creates a temporary virtual environment, reuses installed test dependencies, installs the built wheel, and exercises both demos and a generated agent outside the checkout. To try it manually, install `dist/gentis_ai-0.2.32-py3-none-any.whl[demo]` into a clean virtual environment, change to a directory outside the checkout, and run `gentis demo --provider mock`.
 
 ## Launch Demos
 

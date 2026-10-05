@@ -12,17 +12,25 @@ from .types import Expert, Message, TurnResponse
 from .router import Router
 from .session import Flow
 from .llm import (
-    AzureOpenAILLM,
     BaseLLM,
-    BedrockLLM,
-    GeminiLLM,
     MockLLM,
-    OllamaLLM,
-    OpenAICompatibleLLM,
     ProviderCapabilities,
     ProviderResponse,
-    VLLMLLM,
 )
+
+
+def __getattr__(name: str):
+    from . import llm
+
+    if name not in llm._PROVIDERS:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    value = getattr(llm, name)
+    globals()[name] = value
+    return value
+
+
+def __dir__():
+    return sorted(set(globals()) | set(__all__))
 
 __all__ = [
     "Expert",

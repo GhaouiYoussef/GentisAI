@@ -58,6 +58,26 @@ def test_customer_rescue_displays_tool_result_payload(monkeypatch):
     assert any("ticket_id" in item.value for item in app.markdown)
 
 
+def test_customer_rescue_agent_selector_demonstrates_ticket_permissions(monkeypatch):
+    from gentis_ai.demos.customer_rescue import gentis_setup
+
+    monkeypatch.setattr(gentis_setup, "load_environment", lambda: {})
+    app = AppTest.from_file(str(ROOT / "demos/customer_rescue/app.py"), default_timeout=20).run()
+    app.selectbox[0].select("billing").run()
+    app.chat_input[0].set_value("Create a ticket for a missing refund.").run()
+    assert not app.exception and not app.error
+    assert any("cannot create" in item.value for item in app.markdown)
+    assert not any("ticket_id" in item.value for item in app.markdown)
+
+    monkeypatch.setitem(gentis_setup.AGENT_TOOLS, "billing", ("check_invoice", "create_support_ticket"))
+    # A new app session models restarting after the presenter edits AGENT_TOOLS.
+    app = AppTest.from_file(str(ROOT / "demos/customer_rescue/app.py"), default_timeout=20).run()
+    app.selectbox[0].select("billing").run()
+    app.chat_input[0].set_value("Create a ticket for a missing refund.").run()
+    assert not app.exception and not app.error
+    assert any("ticket_id" in item.value and "missing refund" in item.value for item in app.markdown)
+
+
 def test_trace_replacement_removes_previous_turn_rows():
     app = AppTest.from_string('''
 import streamlit as st
